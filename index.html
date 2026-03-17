@@ -7,416 +7,262 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --navy: #0D1B2A;
-    --navy2: #152536;
-    --gold: #F4B942;
-    --gold2: #E8A820;
-    --white: #F8F6F0;
-    --muted: #8A9BB0;
-    --green: #3ECFA0;
-    --red: #FF6B6B;
-    --blue: #4A9EFF;
-    --card: #162030;
-    --border: rgba(255,255,255,0.07);
+    --navy: #0D1B2A; --navy2: #152536; --gold: #F4B942; --gold2: #E8A820;
+    --white: #F8F6F0; --muted: #8A9BB0; --green: #3ECFA0; --red: #FF6B6B;
+    --blue: #4A9EFF; --card: #162030; --border: rgba(255,255,255,0.07);
   }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'DM Sans',sans-serif; background:#1a1a2e; color:var(--white); min-height:100vh; display:flex; justify-content:center; align-items:center; }
+  .phone { width:390px; height:844px; background:var(--navy); border-radius:48px; overflow:hidden; position:relative; box-shadow:0 40px 120px rgba(0,0,0,0.8),inset 0 0 0 1px rgba(255,255,255,0.1); }
+  .screen { position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; transition:all 0.4s cubic-bezier(0.4,0,0.2,1); opacity:0; pointer-events:none; transform:translateX(30px); scrollbar-width:none; }
+  .screen::-webkit-scrollbar { display:none; }
+  .screen.active { opacity:1; pointer-events:all; transform:translateX(0); }
+  .screen.slide-left { transform:translateX(-30px); opacity:0; pointer-events:none; }
+  .status-bar { display:flex; justify-content:space-between; align-items:center; padding:14px 28px 8px; font-size:12px; font-weight:600; position:sticky; top:0; z-index:10; background:var(--navy); }
+  .notch { width:120px; height:34px; background:#000; border-radius:0 0 20px 20px; margin:0 auto; position:relative; z-index:30; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--navy);
-    color: var(--white);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .phone {
-    width: 390px;
-    height: 844px;
-    background: var(--navy);
-    border-radius: 48px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 40px 120px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.1);
-  }
-
-  /* SCREENS */
-  .screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); opacity: 0; pointer-events: none; transform: translateX(30px); scrollbar-width: none; }
-  .screen::-webkit-scrollbar { display: none; }
-  .screen.active { opacity: 1; pointer-events: all; transform: translateX(0); }
-  .screen.slide-left { transform: translateX(-30px); opacity: 0; pointer-events: none; }
-
-  /* STATUS BAR */
-  .status-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 28px 8px;
-    font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
-    position: sticky; top: 0; z-index: 10;
-    background: var(--navy);
-  }
-
-  /* ===== ONBOARDING SCREEN ===== */
-  #screen-onboard {
-    background: linear-gradient(160deg, #0D1B2A 0%, #0A2540 100%);
-    display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 40px;
-  }
-  .onboard-hero {
-    text-align: center; padding: 30px 30px 0;
-  }
-  .flag-big {
-    font-size: 72px; margin-bottom: 16px;
-    animation: floatFlag 3s ease-in-out infinite;
-  }
+  /* ONBOARDING */
+  #screen-onboard { background:linear-gradient(160deg,#0D1B2A 0%,#0A2540 100%); display:flex; flex-direction:column; justify-content:space-between; padding-bottom:40px; }
+  .flag-big { font-size:72px; margin-bottom:16px; animation:floatFlag 3s ease-in-out infinite; text-align:center; padding-top:30px; }
   @keyframes floatFlag { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .onboard-title { font-family:'Syne',sans-serif; font-size:38px; font-weight:800; line-height:1.1; background:linear-gradient(135deg,#F8F6F0,var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-align:center; }
+  .onboard-sub { color:var(--muted); font-size:15px; margin-top:10px; line-height:1.5; text-align:center; padding:0 30px; }
+  .level-section { padding:24px 24px 0; }
+  .level-label { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); margin-bottom:12px; }
+  .level-cards { display:flex; flex-direction:column; gap:10px; }
+  .level-card { display:flex; align-items:center; gap:14px; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px 16px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; }
+  .level-card:hover,.level-card.selected { border-color:var(--gold); background:rgba(244,185,66,0.08); transform:translateX(4px); }
+  .level-card.selected::after { content:'✓'; position:absolute; right:16px; color:var(--gold); font-weight:700; font-size:16px; }
+  .level-badge { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:13px; flex-shrink:0; }
+  .level-info h4 { font-size:14px; font-weight:600; }
+  .level-info p { font-size:12px; color:var(--muted); margin-top:1px; }
+  .btn-primary { margin:20px 24px 0; background:var(--gold); color:var(--navy); border:none; border-radius:16px; padding:18px; font-family:'Syne',sans-serif; font-weight:700; font-size:16px; cursor:pointer; width:calc(100% - 48px); transition:all 0.2s; }
+  .btn-primary:hover { background:var(--gold2); transform:scale(0.98); }
 
-  .onboard-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 38px; font-weight: 800;
-    line-height: 1.1;
-    background: linear-gradient(135deg, #F8F6F0, var(--gold));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .onboard-sub { color: var(--muted); font-size: 15px; margin-top: 10px; line-height: 1.5; }
+  /* HOME */
+  #screen-home { padding-bottom:100px; }
+  .home-header { padding:6px 24px 20px; }
+  .greeting { font-size:13px; color:var(--muted); }
+  .user-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:700; margin-top:2px; }
+  .streak-banner { margin:0 24px 20px; background:linear-gradient(135deg,#FF6B35,#FF8C42); border-radius:20px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .streak-left { display:flex; align-items:center; gap:12px; }
+  .streak-fire { font-size:32px; }
+  .streak-info h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:20px; }
+  .streak-info p { font-size:12px; opacity:0.85; margin-top:1px; }
+  .xp-section { margin:0 24px 20px; }
+  .xp-top { display:flex; justify-content:space-between; margin-bottom:8px; }
+  .xp-label { font-size:12px; color:var(--muted); }
+  .xp-val { font-size:12px; color:var(--gold); font-weight:600; }
+  .xp-bar { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+  .xp-fill { height:100%; background:linear-gradient(90deg,var(--gold),#FF9F1C); border-radius:99px; width:68%; }
+  .section-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); padding:0 24px; margin-bottom:12px; }
 
-  .level-section { padding: 24px 24px 0; }
-  .level-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px; }
-  .level-cards { display: flex; flex-direction: column; gap: 10px; }
+  /* MISSION CARDS */
+  .mission-cards { display:flex; flex-direction:column; gap:12px; margin:0 24px 24px; }
+  .mission-card { background:linear-gradient(135deg,#1A3A5C,#162030); border:1px solid rgba(74,158,255,0.2); border-radius:24px; padding:22px; position:relative; overflow:hidden; cursor:pointer; transition:all 0.2s; }
+  .mission-card:hover { transform:scale(0.98); }
+  .mission-card::before { content:''; position:absolute; top:-40px; right:-40px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle,rgba(74,158,255,0.15),transparent); }
+  .mission-tag { display:inline-flex; align-items:center; gap:6px; background:rgba(74,158,255,0.15); border:1px solid rgba(74,158,255,0.3); border-radius:99px; padding:4px 12px; font-size:11px; color:var(--blue); font-weight:600; margin-bottom:14px; }
+  .mission-tag.green { background:rgba(62,207,160,0.15); border-color:rgba(62,207,160,0.3); color:var(--green); }
+  .mission-tag.gold { background:rgba(244,185,66,0.15); border-color:rgba(244,185,66,0.3); color:var(--gold); }
+  .mission-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; margin-bottom:6px; }
+  .mission-desc { font-size:13px; color:var(--muted); line-height:1.5; }
+  .mission-footer { display:flex; align-items:center; justify-content:space-between; margin-top:16px; }
+  .mission-xp { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--gold); font-weight:600; }
+  .mission-btn { background:var(--blue); color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .mission-btn.green { background:var(--green); color:var(--navy); }
+  .mission-btn.gold { background:var(--gold); color:var(--navy); }
 
-  .level-card {
-    display: flex; align-items: center; gap: 14px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 14px 16px;
-    cursor: pointer; transition: all 0.2s;
-    position: relative; overflow: hidden;
-  }
-  .level-card:hover, .level-card.selected {
-    border-color: var(--gold); background: rgba(244,185,66,0.08);
-    transform: translateX(4px);
-  }
-  .level-card.selected::after {
-    content: '✓'; position: absolute; right: 16px;
-    color: var(--gold); font-weight: 700; font-size: 16px;
-  }
-  .level-badge {
-    width: 40px; height: 40px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px;
-    flex-shrink: 0;
-  }
-  .level-info h4 { font-size: 14px; font-weight: 600; }
-  .level-info p { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  /* MODULES */
+  .modules-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 24px; margin-bottom:24px; }
+  .module-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:18px 16px; cursor:pointer; transition:all 0.2s; }
+  .module-card:hover { transform:scale(0.97); }
+  .module-icon { font-size:26px; margin-bottom:10px; }
+  .module-name { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:4px; }
+  .module-progress { display:flex; align-items:center; gap:6px; }
+  .module-bar { flex:1; height:4px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+  .module-fill { height:100%; border-radius:99px; }
+  .module-pct { font-size:11px; color:var(--muted); }
 
-  .btn-primary {
-    margin: 20px 24px 0;
-    background: var(--gold); color: var(--navy);
-    border: none; border-radius: 16px; padding: 18px;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
-    cursor: pointer; width: calc(100% - 48px);
-    transition: all 0.2s; letter-spacing: 0.3px;
-  }
-  .btn-primary:hover { background: var(--gold2); transform: scale(0.98); }
+  /* EXERCISE */
+  #screen-exercise { padding-bottom:40px; }
+  .ex-header { display:flex; align-items:center; gap:12px; padding:0 24px 16px; }
+  .back-btn { width:36px; height:36px; background:var(--card); border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; }
+  .ex-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; }
+  .ex-subtitle { font-size:12px; color:var(--muted); margin-left:auto; }
+  .progress-strip { margin:0 24px 20px; display:flex; gap:6px; }
+  .progress-dot { flex:1; height:6px; background:rgba(255,255,255,0.1); border-radius:99px; transition:all 0.3s; }
+  .progress-dot.done { background:var(--gold); }
+  .progress-dot.current { background:var(--blue); }
+  .question-card { margin:0 24px 20px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:24px; }
+  .q-type { font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); margin-bottom:8px; }
+  .q-number { font-size:11px; color:var(--blue); float:right; }
+  .q-text { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; line-height:1.4; clear:both; }
+  .q-blank { display:inline-block; min-width:70px; border-bottom:2px solid var(--gold); color:var(--gold); text-align:center; margin:0 4px; }
+  .q-hint { font-size:13px; color:var(--muted); margin-top:10px; }
+  .options-grid { display:flex; flex-direction:column; gap:10px; padding:0 24px; margin-bottom:20px; }
+  .option-btn { background:var(--card); border:1.5px solid var(--border); border-radius:16px; padding:16px 20px; font-size:16px; font-weight:600; color:var(--white); cursor:pointer; transition:all 0.2s; text-align:left; font-family:'Syne',sans-serif; display:flex; align-items:center; justify-content:space-between; }
+  .option-btn:hover:not(:disabled) { border-color:var(--blue); background:rgba(74,158,255,0.08); }
+  .option-btn.correct { border-color:var(--green); background:rgba(62,207,160,0.1); color:var(--green); }
+  .option-btn.wrong { border-color:var(--red); background:rgba(255,107,107,0.1); color:var(--red); }
+  .option-btn:disabled { cursor:default; }
+  .feedback-card { margin:0 24px 20px; border-radius:16px; padding:16px 18px; display:none; align-items:flex-start; gap:12px; }
+  .feedback-card.show { display:flex; }
+  .feedback-card.correct-fb { background:rgba(62,207,160,0.1); border:1px solid rgba(62,207,160,0.3); }
+  .feedback-card.wrong-fb { background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3); }
+  .fb-icon { font-size:20px; }
+  .fb-text h4 { font-weight:700; font-size:14px; }
+  .fb-text p { font-size:13px; color:var(--muted); margin-top:3px; }
+  .next-btn { margin:0 24px; background:var(--gold); color:var(--navy); border:none; border-radius:16px; padding:18px; font-family:'Syne',sans-serif; font-weight:700; font-size:16px; cursor:pointer; width:calc(100% - 48px); display:none; }
+  .next-btn.show { display:block; }
 
-  /* ===== HOME SCREEN ===== */
-  #screen-home { padding-bottom: 100px; }
+  /* LOADING */
+  .loading-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:16px; }
+  .spinner { width:48px; height:48px; border:4px solid rgba(255,255,255,0.1); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { color:var(--muted); font-size:14px; }
 
-  .home-header { padding: 6px 24px 20px; }
-  .greeting { font-size: 13px; color: var(--muted); }
-  .user-name { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; margin-top: 2px; }
-
-  .streak-banner {
-    margin: 0 24px 20px;
-    background: linear-gradient(135deg, #FF6B35, #FF8C42);
-    border-radius: 20px; padding: 16px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .streak-left { display: flex; align-items: center; gap: 12px; }
-  .streak-fire { font-size: 32px; }
-  .streak-info h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; }
-  .streak-info p { font-size: 12px; opacity: 0.85; margin-top: 1px; }
-  .streak-right { text-align: right; }
-  .streak-right p { font-size: 11px; opacity: 0.8; }
-  .streak-right h4 { font-size: 22px; font-weight: 700; font-family: 'Syne', sans-serif; }
-
-  /* XP Bar */
-  .xp-section { margin: 0 24px 20px; }
-  .xp-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .xp-label { font-size: 12px; color: var(--muted); }
-  .xp-val { font-size: 12px; color: var(--gold); font-weight: 600; }
-  .xp-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
-  .xp-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #FF9F1C); border-radius: 99px; width: 68%; transition: width 1s ease; }
-
-  /* Daily Mission Card */
-  .section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 0 24px; margin-bottom: 12px; }
-
-  .mission-card {
-    margin: 0 24px 24px;
-    background: linear-gradient(135deg, #1A3A5C, #162030);
-    border: 1px solid rgba(74,158,255,0.2);
-    border-radius: 24px; padding: 22px;
-    position: relative; overflow: hidden; cursor: pointer;
-  }
-  .mission-card::before {
-    content: ''; position: absolute; top: -40px; right: -40px;
-    width: 120px; height: 120px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(74,158,255,0.15), transparent);
-  }
-  .mission-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(74,158,255,0.15); border: 1px solid rgba(74,158,255,0.3); border-radius: 99px; padding: 4px 12px; font-size: 11px; color: var(--blue); font-weight: 600; margin-bottom: 14px; }
-  .mission-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-  .mission-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-  .mission-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
-  .mission-xp { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--gold); font-weight: 600; }
-  .mission-btn { background: var(--blue); color: white; border: none; border-radius: 12px; padding: 10px 18px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-
-  /* Module Grid */
-  .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 24px; margin-bottom: 24px; }
-  .module-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 18px 16px;
-    cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
-  }
-  .module-card:hover { transform: scale(0.97); }
-  .module-icon { font-size: 26px; margin-bottom: 10px; }
-  .module-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-  .module-progress { display: flex; align-items: center; gap: 6px; }
-  .module-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
-  .module-fill { height: 100%; border-radius: 99px; }
-  .module-pct { font-size: 11px; color: var(--muted); }
-
-  /* ===== EXERCISE SCREEN ===== */
-  #screen-exercise { padding-bottom: 40px; }
-
-  .ex-header { display: flex; align-items: center; gap: 12px; padding: 0 24px 16px; }
-  .back-btn { width: 36px; height: 36px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
-  .ex-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
-
-  .progress-strip { margin: 0 24px 20px; display: flex; gap: 6px; }
-  .progress-dot { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; transition: all 0.3s; }
-  .progress-dot.done { background: var(--gold); }
-  .progress-dot.current { background: var(--blue); }
-
-  .question-card {
-    margin: 0 24px 20px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 24px; padding: 24px;
-  }
-  .q-type { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; }
-  .q-text { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; line-height: 1.4; }
-  .q-blank { display: inline-block; min-width: 70px; border-bottom: 2px solid var(--gold); color: var(--gold); text-align: center; margin: 0 4px; }
-  .q-hint { font-size: 13px; color: var(--muted); margin-top: 10px; }
-
-  .options-grid { display: flex; flex-direction: column; gap: 10px; padding: 0 24px; margin-bottom: 20px; }
-  .option-btn {
-    background: var(--card); border: 1.5px solid var(--border);
-    border-radius: 16px; padding: 16px 20px;
-    font-size: 16px; font-weight: 600; color: var(--white);
-    cursor: pointer; transition: all 0.2s; text-align: left;
-    font-family: 'Syne', sans-serif;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .option-btn:hover { border-color: var(--blue); background: rgba(74,158,255,0.08); }
-  .option-btn.correct { border-color: var(--green); background: rgba(62,207,160,0.1); color: var(--green); }
-  .option-btn.wrong { border-color: var(--red); background: rgba(255,107,107,0.1); color: var(--red); }
-
-  .feedback-card {
-    margin: 0 24px 20px;
-    border-radius: 16px; padding: 16px 18px;
-    display: none; align-items: flex-start; gap: 12px;
-  }
-  .feedback-card.show { display: flex; }
-  .feedback-card.correct-fb { background: rgba(62,207,160,0.1); border: 1px solid rgba(62,207,160,0.3); }
-  .feedback-card.wrong-fb { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); }
-  .fb-icon { font-size: 20px; }
-  .fb-text h4 { font-weight: 700; font-size: 14px; }
-  .fb-text p { font-size: 13px; color: var(--muted); margin-top: 3px; }
-
-  .next-btn {
-    margin: 0 24px;
-    background: var(--gold); color: var(--navy);
-    border: none; border-radius: 16px; padding: 18px;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
-    cursor: pointer; width: calc(100% - 48px); display: none;
-  }
-  .next-btn.show { display: block; }
-
-  /* ===== RESULT SCREEN ===== */
-  #screen-result {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; text-align: center; padding: 40px 24px;
-  }
-  .result-trophy { font-size: 80px; margin-bottom: 20px; animation: bounce 0.6s ease; }
+  /* RESULT */
+  #screen-result { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px; }
+  .result-trophy { font-size:80px; margin-bottom:20px; animation:bounce 0.6s ease; }
   @keyframes bounce { 0%{transform:scale(0)} 60%{transform:scale(1.15)} 100%{transform:scale(1)} }
-  .result-title { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; margin-bottom: 8px; }
-  .result-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
-  .result-stats { display: flex; gap: 16px; margin-bottom: 32px; width: 100%; }
-  .stat-box { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px 12px; }
-  .stat-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
-  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.8px; }
-  .xp-gain { background: rgba(244,185,66,0.1); border: 1px solid rgba(244,185,66,0.3); border-radius: 16px; padding: 16px 20px; margin-bottom: 24px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .xp-gain-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--gold); }
+  .result-title { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; margin-bottom:8px; }
+  .result-sub { color:var(--muted); font-size:15px; margin-bottom:32px; }
+  .result-stats { display:flex; gap:16px; margin-bottom:32px; width:100%; }
+  .stat-box { flex:1; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:18px 12px; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; }
+  .stat-label { font-size:11px; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; }
+  .xp-gain { background:rgba(244,185,66,0.1); border:1px solid rgba(244,185,66,0.3); border-radius:16px; padding:16px 20px; margin-bottom:24px; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .xp-gain-val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--gold); }
 
-  /* ===== BOTTOM NAV ===== */
-  .bottom-nav {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 88px; background: rgba(13,27,42,0.97);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-around;
-    padding-bottom: 16px;
-    z-index: 20;
-  }
-  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: all 0.2s; opacity: 0.4; }
-  .nav-item.active { opacity: 1; }
-  .nav-item.active .nav-dot { background: var(--gold); }
-  .nav-icon { font-size: 22px; }
-  .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; color: var(--muted); }
-  .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: transparent; margin-top: 2px; }
+  /* BOTTOM NAV */
+  .bottom-nav { position:absolute; bottom:0; left:0; right:0; height:88px; background:rgba(13,27,42,0.97); backdrop-filter:blur(20px); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-around; padding-bottom:16px; z-index:20; }
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:8px 16px; border-radius:12px; transition:all 0.2s; opacity:0.4; }
+  .nav-item.active { opacity:1; }
+  .nav-icon { font-size:22px; }
+  .nav-label { font-size:10px; font-weight:600; letter-spacing:0.5px; color:var(--muted); }
+  .nav-dot { width:4px; height:4px; border-radius:50%; background:transparent; margin-top:2px; }
+  .nav-item.active .nav-dot { background:var(--gold); }
 
-  /* Notch */
-  .notch { width: 120px; height: 34px; background: #000; border-radius: 0 0 20px 20px; margin: 0 auto; position: relative; z-index: 30; }
-
-  /* Scrollable wrapper to prevent notch overlap */
-  .scroll-content { padding-top: 8px; }
-
-  /* Badges section */
-  .badges-row { display: flex; gap: 10px; padding: 0 24px; overflow-x: auto; scrollbar-width: none; margin-bottom: 24px; }
-  .badges-row::-webkit-scrollbar { display: none; }
-  .badge-chip { flex-shrink: 0; display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 14px; }
-  .badge-chip.earned { border-color: rgba(244,185,66,0.4); background: rgba(244,185,66,0.06); }
-  .badge-chip .b-icon { font-size: 18px; }
-  .badge-chip .b-name { font-size: 12px; font-weight: 600; }
-  .badge-chip.locked { opacity: 0.4; }
-
+  /* ERROR */
+  .error-box { margin:20px 24px; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3); border-radius:16px; padding:16px; text-align:center; }
+  .error-box p { color:var(--red); font-size:13px; }
 </style>
 </head>
 <body>
-
 <div class="phone">
   <div class="notch"></div>
 
-  <!-- ===== ONBOARDING ===== -->
+  <!-- ONBOARDING -->
   <div class="screen active" id="screen-onboard">
     <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-    <div class="onboard-hero">
+    <div>
       <div class="flag-big">🇩🇪</div>
       <div class="onboard-title">Grammatik<br>Held</div>
-      <p class="onboard-sub">Master German grammar through<br>daily challenges. Become a Held.</p>
+      <p class="onboard-sub">Master German grammar through daily challenges. Become a Held.</p>
     </div>
-
     <div class="level-section">
       <div class="level-label">Choose your level</div>
       <div class="level-cards">
-        <div class="level-card" onclick="selectLevel(this, 'A1')">
+        <div class="level-card" onclick="selectLevel(this,'A1')">
           <div class="level-badge" style="background:rgba(62,207,160,0.15);color:#3ECFA0">A1</div>
           <div class="level-info"><h4>Rookie — Anfänger</h4><p>Complete beginner, fresh start</p></div>
         </div>
-        <div class="level-card" onclick="selectLevel(this, 'A2')">
+        <div class="level-card" onclick="selectLevel(this,'A2')">
           <div class="level-badge" style="background:rgba(74,158,255,0.15);color:#4A9EFF">A2</div>
           <div class="level-info"><h4>Wanderer — Grundkenntnisse</h4><p>Know some basics already</p></div>
         </div>
-        <div class="level-card selected" onclick="selectLevel(this, 'B1')">
+        <div class="level-card selected" onclick="selectLevel(this,'B1')">
           <div class="level-badge" style="background:rgba(244,185,66,0.15);color:#F4B942">B1</div>
           <div class="level-info"><h4>Kämpfer — Mittelstufe</h4><p>Intermediate, ready for more</p></div>
         </div>
-        <div class="level-card" onclick="selectLevel(this, 'B2')">
+        <div class="level-card" onclick="selectLevel(this,'B2')">
           <div class="level-badge" style="background:rgba(255,107,107,0.15);color:#FF6B6B">B2</div>
           <div class="level-info"><h4>Held — Fortgeschritten</h4><p>Upper intermediate challenger</p></div>
         </div>
-        <div class="level-card" onclick="selectLevel(this, 'C1')">
+        <div class="level-card" onclick="selectLevel(this,'C1')">
           <div class="level-badge" style="background:rgba(180,120,255,0.15);color:#B478FF">C1</div>
           <div class="level-info"><h4>Meister — Experte</h4><p>Near-native, master the nuance</p></div>
         </div>
       </div>
     </div>
-
     <button class="btn-primary" onclick="goToHome()">Lass uns starten! 🚀</button>
   </div>
 
-  <!-- ===== HOME SCREEN ===== -->
+  <!-- HOME -->
   <div class="screen" id="screen-home">
     <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-    <div class="scroll-content">
-
+    <div style="padding-bottom:10px">
       <div class="home-header">
-        <div class="greeting">Guten Morgen 👋</div>
-        <div class="user-name">Felix, B1 Kämpfer</div>
+        <div class="greeting">Guten Tag 👋</div>
+        <div class="user-name" id="home-username">Held, Loading...</div>
       </div>
-
       <div class="streak-banner">
         <div class="streak-left">
           <div class="streak-fire">🔥</div>
-          <div class="streak-info">
-            <h3>12 Tage!</h3>
-            <p>Keep your streak alive</p>
-          </div>
+          <div class="streak-info"><h3>12 Tage!</h3><p>Keep your streak alive</p></div>
         </div>
-        <div class="streak-right">
-          <p>Today's goal</p>
-          <h4>68%</h4>
-        </div>
+        <div style="text-align:right"><p style="font-size:11px;opacity:0.8">Today's goal</p><h4 style="font-size:22px;font-weight:700;font-family:'Syne',sans-serif">68%</h4></div>
       </div>
-
       <div class="xp-section">
         <div class="xp-top"><span class="xp-label">Level 14 → 15</span><span class="xp-val">680 / 1000 XP</span></div>
         <div class="xp-bar"><div class="xp-fill"></div></div>
       </div>
 
-      <div class="section-title">Daily Mission</div>
-      <div class="mission-card" onclick="goToExercise()">
-        <div class="mission-tag">⚡ Sprachbausteine</div>
-        <div class="mission-title">Fill the Gap Challenge</div>
-        <div class="mission-desc">5 sentences · Adjective endings &amp; articles · B1 level</div>
-        <div class="mission-footer">
-          <div class="mission-xp">🏆 +120 XP</div>
-          <button class="mission-btn">Start →</button>
+      <div class="section-title">Daily Missions</div>
+      <div class="mission-cards">
+        <div class="mission-card" onclick="startExercise('multiple_choice')">
+          <div class="mission-tag">⚡ Multiple Choice</div>
+          <div class="mission-title">Article Challenge</div>
+          <div class="mission-desc" id="mc-desc">Loading questions from database...</div>
+          <div class="mission-footer">
+            <div class="mission-xp">🏆 +120 XP</div>
+            <button class="mission-btn">Start →</button>
+          </div>
+        </div>
+        <div class="mission-card" onclick="startExercise('sprachbausteine')">
+          <div class="mission-tag green">✍️ Sprachbausteine</div>
+          <div class="mission-title">Fill the Gap</div>
+          <div class="mission-desc" id="fb-desc">Loading questions from database...</div>
+          <div class="mission-footer">
+            <div class="mission-xp">🏆 +100 XP</div>
+            <button class="mission-btn green">Start →</button>
+          </div>
+        </div>
+        <div class="mission-card" onclick="startExercise('true_or_false')">
+          <div class="mission-tag gold">✔️ True or False</div>
+          <div class="mission-title">Richtig oder Falsch?</div>
+          <div class="mission-desc" id="tf-desc">Loading questions from database...</div>
+          <div class="mission-footer">
+            <div class="mission-xp">🏆 +80 XP</div>
+            <button class="mission-btn gold">Start →</button>
+          </div>
         </div>
       </div>
 
       <div class="section-title">Grammar Modules</div>
       <div class="modules-grid">
-        <div class="module-card" onclick="goToExercise()">
+        <div class="module-card" onclick="startExercise('multiple_choice')">
           <div class="module-icon">📖</div>
           <div class="module-name">Articles</div>
-          <div class="module-progress">
-            <div class="module-bar"><div class="module-fill" style="width:75%;background:#4A9EFF"></div></div>
-            <div class="module-pct">75%</div>
-          </div>
+          <div class="module-progress"><div class="module-bar"><div class="module-fill" style="width:75%;background:#4A9EFF"></div></div><div class="module-pct">75%</div></div>
         </div>
-        <div class="module-card" onclick="goToExercise()">
-          <div class="module-icon">🔤</div>
-          <div class="module-name">Adjektive</div>
-          <div class="module-progress">
-            <div class="module-bar"><div class="module-fill" style="width:40%;background:#F4B942"></div></div>
-            <div class="module-pct">40%</div>
-          </div>
+        <div class="module-card" onclick="startExercise('sprachbausteine')">
+          <div class="module-icon">✍️</div>
+          <div class="module-name">Sprachbausteine</div>
+          <div class="module-progress"><div class="module-bar"><div class="module-fill" style="width:40%;background:#F4B942"></div></div><div class="module-pct">40%</div></div>
         </div>
-        <div class="module-card" onclick="goToExercise()">
-          <div class="module-icon">⚙️</div>
+        <div class="module-card" onclick="startExercise('true_or_false')">
+          <div class="module-icon">✔️</div>
+          <div class="module-name">True / False</div>
+          <div class="module-progress"><div class="module-bar"><div class="module-fill" style="width:55%;background:#3ECFA0"></div></div><div class="module-pct">55%</div></div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon">🔜</div>
           <div class="module-name">Kasus</div>
-          <div class="module-progress">
-            <div class="module-bar"><div class="module-fill" style="width:55%;background:#3ECFA0"></div></div>
-            <div class="module-pct">55%</div>
-          </div>
-        </div>
-        <div class="module-card" onclick="goToExercise()">
-          <div class="module-icon">🔀</div>
-          <div class="module-name">Satzbau</div>
-          <div class="module-progress">
-            <div class="module-bar"><div class="module-fill" style="width:30%;background:#B478FF"></div></div>
-            <div class="module-pct">30%</div>
-          </div>
+          <div class="module-progress"><div class="module-bar"><div class="module-fill" style="width:0%;background:#B478FF"></div></div><div class="module-pct">Soon</div></div>
         </div>
       </div>
-
-      <div class="section-title">Badges</div>
-      <div class="badges-row">
-        <div class="badge-chip earned"><span class="b-icon">🏅</span><span class="b-name">Artikel Ace</span></div>
-        <div class="badge-chip earned"><span class="b-icon">⚡</span><span class="b-name">Week Warrior</span></div>
-        <div class="badge-chip locked"><span class="b-icon">👑</span><span class="b-name">Case King</span></div>
-        <div class="badge-chip locked"><span class="b-icon">🌟</span><span class="b-name">Meister</span></div>
-      </div>
-
     </div>
     <div class="bottom-nav">
       <div class="nav-item active"><div class="nav-icon">🏠</div><div class="nav-label">Home</div><div class="nav-dot"></div></div>
@@ -426,162 +272,294 @@
     </div>
   </div>
 
-  <!-- ===== EXERCISE SCREEN ===== -->
+  <!-- EXERCISE -->
   <div class="screen" id="screen-exercise">
     <div class="status-bar"><span>9:41</span><span>●●●</span></div>
-
     <div class="ex-header">
       <div class="back-btn" onclick="goBack()">←</div>
-      <div class="ex-title">Sprachbausteine</div>
+      <div class="ex-title" id="ex-title">Loading...</div>
+      <div class="ex-subtitle" id="ex-subtitle"></div>
     </div>
-
-    <div class="progress-strip" id="progress-strip">
-      <div class="progress-dot done"></div>
-      <div class="progress-dot done"></div>
-      <div class="progress-dot current"></div>
-      <div class="progress-dot"></div>
-      <div class="progress-dot"></div>
-    </div>
-
-    <div class="question-card">
-      <div class="q-type">Adjective Ending · Question 3 of 5</div>
-      <div class="q-text">
-        Ich sehe <span class="q-blank" id="blank">___</span> alten Mann auf der Straße.
+    <div class="progress-strip" id="progress-strip"></div>
+    <div id="exercise-content">
+      <div class="loading-screen">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading questions...</div>
       </div>
-      <div class="q-hint">💡 Tipp: Akkusativ · maskulin</div>
     </div>
-
-    <div class="options-grid" id="options">
-      <button class="option-btn" onclick="checkAnswer(this, false)">der <span style="color:var(--muted);font-size:13px">→ Nominativ</span></button>
-      <button class="option-btn" onclick="checkAnswer(this, true)">den <span style="color:var(--muted);font-size:13px">→ Akkusativ ✓</span></button>
-      <button class="option-btn" onclick="checkAnswer(this, false)">dem <span style="color:var(--muted);font-size:13px">→ Dativ</span></button>
-      <button class="option-btn" onclick="checkAnswer(this, false)">des <span style="color:var(--muted);font-size:13px">→ Genitiv</span></button>
-    </div>
-
-    <div class="feedback-card" id="feedback">
-      <div class="fb-icon" id="fb-icon"></div>
-      <div class="fb-text"><h4 id="fb-title"></h4><p id="fb-desc"></p></div>
-    </div>
-
-    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Weiter →</button>
   </div>
 
-  <!-- ===== RESULT SCREEN ===== -->
+  <!-- RESULT -->
   <div class="screen" id="screen-result">
     <div class="status-bar"><span>9:41</span><span>●●●</span></div>
     <div class="result-trophy">🏆</div>
-    <div class="result-title">Ausgezeichnet!</div>
-    <div class="result-sub">Daily mission complete · Streak extended!</div>
-
+    <div class="result-title" id="result-title">Ausgezeichnet!</div>
+    <div class="result-sub" id="result-sub">Daily mission complete!</div>
     <div class="result-stats">
-      <div class="stat-box">
-        <div class="stat-val" style="color:var(--green)">4/5</div>
-        <div class="stat-label">Correct</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val" style="color:var(--blue)">92%</div>
-        <div class="stat-label">Accuracy</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val" style="color:var(--gold)">🔥13</div>
-        <div class="stat-label">Streak</div>
-      </div>
+      <div class="stat-box"><div class="stat-val" id="stat-correct" style="color:var(--green)">-</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-accuracy" style="color:var(--blue)">-</div><div class="stat-label">Accuracy</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--gold)">🔥12</div><div class="stat-label">Streak</div></div>
     </div>
-
-    <div class="xp-gain">
-      <span style="font-size:22px">✨</span>
-      <span class="xp-gain-val">+120 XP</span>
-      <span style="color:var(--muted);font-size:13px">earned today</span>
-    </div>
-
+    <div class="xp-gain"><span style="font-size:22px">✨</span><span class="xp-gain-val" id="xp-earned">+100 XP</span><span style="color:var(--muted);font-size:13px">earned today</span></div>
     <button class="btn-primary" style="margin:0;width:100%" onclick="goToHome()">Back to Home 🏠</button>
   </div>
-
 </div>
 
 <script>
-let selectedLevel = 'B1';
-let answered = false;
-let questionIndex = 2;
+  // ── CONFIG ──────────────────────────────────────────────
+  const SUPABASE_URL = 'https://aojtozjudqtpxebfxfyy.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvanRvenp1ZHF0cHhlYmZ4ZnkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MjE5MDI4NCwiZXhwIjoyMDU3NzY2Mjg0fQ.uYNP3eO4PoG5qqHnWrycuKa-UpkDWbbdpg3OWrlWrr8';
 
-function selectLevel(el, level) {
-  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedLevel = level;
-}
+  // ── STATE ───────────────────────────────────────────────
+  let selectedLevel = 'B1';
+  let currentQuestions = [];
+  let currentIndex = 0;
+  let correctCount = 0;
+  let answered = false;
+  let currentType = '';
+  const QUESTIONS_PER_SESSION = 5;
 
-function showScreen(id) {
-  const current = document.querySelector('.screen.active');
-  if (current) {
-    current.classList.remove('active');
-    current.classList.add('slide-left');
-    setTimeout(() => current.classList.remove('slide-left'), 400);
-  }
-  const next = document.getElementById(id);
-  setTimeout(() => {
-    next.classList.add('active');
-    next.scrollTop = 0;
-  }, 50);
-}
-
-function goToHome() { showScreen('screen-home'); }
-function goToExercise() { answered = false; resetExercise(); showScreen('screen-exercise'); }
-function goBack() { showScreen('screen-home'); }
-
-function resetExercise() {
-  document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct','wrong'); b.disabled = false; });
-  document.getElementById('feedback').classList.remove('show','correct-fb','wrong-fb');
-  document.getElementById('next-btn').classList.remove('show');
-  answered = false;
-}
-
-function checkAnswer(btn, isCorrect) {
-  if (answered) return;
-  answered = true;
-
-  const opts = document.querySelectorAll('.option-btn');
-  opts.forEach(b => b.disabled = true);
-
-  const feedback = document.getElementById('feedback');
-  const nextBtn = document.getElementById('next-btn');
-
-  if (isCorrect) {
-    btn.classList.add('correct');
-    document.getElementById('blank').textContent = 'den';
-    feedback.className = 'feedback-card show correct-fb';
-    document.getElementById('fb-icon').textContent = '✅';
-    document.getElementById('fb-title').textContent = 'Richtig! Perfekt!';
-    document.getElementById('fb-desc').textContent = 'Akkusativ maskulin → "den". Der Mann (mask.) is the direct object.';
-  } else {
-    btn.classList.add('wrong');
-    opts.forEach(b => { if (b.onclick.toString().includes('true')) b.classList.add('correct'); });
-    feedback.className = 'feedback-card show wrong-fb';
-    document.getElementById('fb-icon').textContent = '❌';
-    document.getElementById('fb-title').textContent = 'Fast! Try to remember:';
-    document.getElementById('fb-desc').textContent = 'Akkusativ maskulin → "den". Nominativ would be "der".';
+  // ── SUPABASE FETCH ──────────────────────────────────────
+  async function fetchFromSupabase(table, level) {
+    const url = `${SUPABASE_URL}/rest/v1/${table}?select=*&limit=50`;
+    const res = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) throw new Error(`Failed to fetch ${table}`);
+    const data = await res.json();
+    // Filter by level if possible, else return all
+    const filtered = data.filter(q => !level || q.level === level || q.level === 'A1');
+    return filtered.sort(() => Math.random() - 0.5).slice(0, QUESTIONS_PER_SESSION);
   }
 
-  nextBtn.classList.add('show');
-}
+  // ── NAVIGATION ──────────────────────────────────────────
+  function showScreen(id) {
+    const cur = document.querySelector('.screen.active');
+    if (cur) { cur.classList.remove('active'); cur.classList.add('slide-left'); setTimeout(() => cur.classList.remove('slide-left'), 400); }
+    setTimeout(() => { const next = document.getElementById(id); next.classList.add('active'); next.scrollTop = 0; }, 50);
+  }
 
-function nextQuestion() {
-  questionIndex++;
-  if (questionIndex >= 5) {
+  function selectLevel(el, level) {
+    document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedLevel = level;
+  }
+
+  function goToHome() {
+    showScreen('screen-home');
+    document.getElementById('home-username').textContent = `Held, ${selectedLevel} Level`;
+    loadHomeCounts();
+  }
+
+  function goBack() { showScreen('screen-home'); }
+
+  // ── LOAD HOME COUNTS ─────────────────────────────────────
+  async function loadHomeCounts() {
+    try {
+      const [mc, fb, tf] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/multiple_choice?select=id`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
+        fetch(`${SUPABASE_URL}/rest/v1/sprachbausteine?select=id`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
+        fetch(`${SUPABASE_URL}/rest/v1/true_or_false?select=id`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } })
+      ]);
+      const mcData = await mc.json();
+      const fbData = await fb.json();
+      const tfData = await tf.json();
+      document.getElementById('mc-desc').textContent = `${mcData.length} questions · Articles · ${selectedLevel} level`;
+      document.getElementById('fb-desc').textContent = `${fbData.length} sentences · Fill the blank · ${selectedLevel} level`;
+      document.getElementById('tf-desc').textContent = `${tfData.length} statements · True or False · ${selectedLevel} level`;
+    } catch(e) {
+      document.getElementById('mc-desc').textContent = '5 questions · Articles · Multiple Choice';
+      document.getElementById('fb-desc').textContent = '5 sentences · Fill in the blank';
+      document.getElementById('tf-desc').textContent = '5 statements · True or False';
+    }
+  }
+
+  // ── START EXERCISE ───────────────────────────────────────
+  async function startExercise(type) {
+    currentType = type;
+    currentIndex = 0;
+    correctCount = 0;
+    answered = false;
+    showScreen('screen-exercise');
+
+    const titles = { multiple_choice: 'Multiple Choice', sprachbausteine: 'Sprachbausteine', true_or_false: 'True or False' };
+    document.getElementById('ex-title').textContent = titles[type];
+    document.getElementById('exercise-content').innerHTML = `<div class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading from database...</div></div>`;
+
+    try {
+      currentQuestions = await fetchFromSupabase(type, selectedLevel);
+      if (!currentQuestions.length) throw new Error('No questions found');
+      buildProgressDots();
+      showQuestion();
+    } catch(e) {
+      document.getElementById('exercise-content').innerHTML = `<div class="error-box"><p>❌ Could not load questions.<br>Check your database connection.<br><small>${e.message}</small></p></div>`;
+    }
+  }
+
+  // ── PROGRESS DOTS ────────────────────────────────────────
+  function buildProgressDots() {
+    const strip = document.getElementById('progress-strip');
+    strip.innerHTML = '';
+    currentQuestions.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'progress-dot' + (i === 0 ? ' current' : '');
+      strip.appendChild(d);
+    });
+    document.getElementById('ex-subtitle').textContent = `1 / ${currentQuestions.length}`;
+  }
+
+  function updateDots() {
+    const dots = document.querySelectorAll('.progress-dot');
+    dots.forEach((d, i) => {
+      d.className = 'progress-dot';
+      if (i < currentIndex) d.classList.add('done');
+      else if (i === currentIndex) d.classList.add('current');
+    });
+    document.getElementById('ex-subtitle').textContent = `${currentIndex + 1} / ${currentQuestions.length}`;
+  }
+
+  // ── SHOW QUESTION ─────────────────────────────────────────
+  function showQuestion() {
+    answered = false;
+    const q = currentQuestions[currentIndex];
+    updateDots();
+
+    if (currentType === 'multiple_choice') renderMC(q);
+    else if (currentType === 'sprachbausteine') renderFB(q);
+    else if (currentType === 'true_or_false') renderTF(q);
+  }
+
+  function renderMC(q) {
+    const options = [
+      { label: 'A', val: q.option_a, key: 'A' },
+      { label: 'B', val: q.option_b, key: 'B' },
+      { label: 'C', val: q.option_c, key: 'C' },
+      { label: 'D', val: q.option_d, key: 'D' },
+    ];
+    document.getElementById('exercise-content').innerHTML = `
+      <div class="question-card">
+        <div class="q-type">Articles · ${q.level} <span class="q-number">${q.topic}</span></div>
+        <div class="q-text">${q.question.replace('___', '<span class="q-blank" id="blank">___</span>')}</div>
+        <div class="q-hint">💡 Choose the correct article</div>
+      </div>
+      <div class="options-grid">
+        ${options.map(o => `<button class="option-btn" onclick="checkMC(this,'${o.key}','${q.correct_answer}','${q.option_a}','${q.option_b}','${q.option_c}','${q.option_d}','${q.correct_answer}')"><span>${o.val}</span><span style="color:var(--muted);font-size:12px">${o.label}</span></button>`).join('')}
+      </div>
+      <div class="feedback-card" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Weiter →</button>
+    `;
+  }
+
+  function renderFB(q) {
+    document.getElementById('exercise-content').innerHTML = `
+      <div class="question-card">
+        <div class="q-type">Sprachbausteine · ${q.level}</div>
+        <div class="q-text">${q.sentence.replace('___', '<span class="q-blank" id="blank">___</span>')}</div>
+        <div class="q-hint">💡 Tipp: ${q.hint}</div>
+      </div>
+      <div class="options-grid" id="options-grid"></div>
+      <div class="feedback-card" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Weiter →</button>
+    `;
+    // Generate plausible distractors
+    const correct = q.correct_answer;
+    const allOptions = shuffle(['der','die','das','den','dem','einen','eine','ein','einer','einem','kein','keine','keinen'].filter(x => x !== correct).slice(0,3).concat([correct]));
+    const grid = document.getElementById('options-grid');
+    allOptions.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span>${opt}</span>`;
+      btn.onclick = () => checkFB(btn, opt, correct, q.explanation);
+      grid.appendChild(btn);
+    });
+  }
+
+  function renderTF(q) {
+    document.getElementById('exercise-content').innerHTML = `
+      <div class="question-card">
+        <div class="q-type">True or False · ${q.level}</div>
+        <div class="q-text" style="font-size:17px">${q.statement}</div>
+        <div class="q-hint">💡 Is this statement correct?</div>
+      </div>
+      <div class="options-grid">
+        <button class="option-btn" onclick="checkTF(this,'TRUE','${q.answer}','${escapeJs(q.explanation)}')"><span>✅ TRUE — Richtig</span></button>
+        <button class="option-btn" onclick="checkTF(this,'FALSE','${q.answer}','${escapeJs(q.explanation)}')"><span>❌ FALSE — Falsch</span></button>
+      </div>
+      <div class="feedback-card" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Weiter →</button>
+    `;
+  }
+
+  function escapeJs(str) { return (str||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+  function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+  // ── CHECK ANSWERS ─────────────────────────────────────────
+  function checkMC(btn, chosen, correct, a, b, c, d, correctKey) {
+    if (answered) return;
+    answered = true;
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    const isCorrect = chosen === correct;
+    if (isCorrect) { btn.classList.add('correct'); correctCount++; showFeedback(true, 'Richtig! Perfekt! 🎉', ''); }
+    else { btn.classList.add('wrong'); showFeedback(false, 'Not quite!', `Correct answer: ${correct}`); }
+    document.getElementById('next-btn').classList.add('show');
+  }
+
+  function checkFB(btn, chosen, correct, explanation) {
+    if (answered) return;
+    answered = true;
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    const isCorrect = chosen === correct;
+    if (isCorrect) { btn.classList.add('correct'); correctCount++; showFeedback(true, 'Richtig! 🎉', explanation||''); }
+    else {
+      btn.classList.add('wrong');
+      document.querySelectorAll('.option-btn').forEach(b => { if (b.querySelector('span').textContent === correct) b.classList.add('correct'); });
+      showFeedback(false, `The answer is: ${correct}`, explanation||'');
+    }
+    document.getElementById('next-btn').classList.add('show');
+  }
+
+  function checkTF(btn, chosen, correct, explanation) {
+    if (answered) return;
+    answered = true;
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    const isCorrect = chosen === correct;
+    if (isCorrect) { btn.classList.add('correct'); correctCount++; showFeedback(true, 'Richtig! 🎉', explanation); }
+    else { btn.classList.add('wrong'); showFeedback(false, `It is ${correct}`, explanation); }
+    document.getElementById('next-btn').classList.add('show');
+  }
+
+  function showFeedback(correct, title, desc) {
+    const fb = document.getElementById('feedback');
+    fb.className = `feedback-card show ${correct ? 'correct-fb' : 'wrong-fb'}`;
+    fb.innerHTML = `<div class="fb-icon">${correct ? '✅' : '❌'}</div><div class="fb-text"><h4>${title}</h4><p>${desc}</p></div>`;
+  }
+
+  // ── NEXT QUESTION ─────────────────────────────────────────
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= currentQuestions.length) showResult();
+    else { answered = false; showQuestion(); }
+  }
+
+  // ── RESULT ────────────────────────────────────────────────
+  function showResult() {
+    const total = currentQuestions.length;
+    const acc = Math.round((correctCount / total) * 100);
+    const xp = currentType === 'multiple_choice' ? 120 : currentType === 'sprachbausteine' ? 100 : 80;
+    document.getElementById('stat-correct').textContent = `${correctCount}/${total}`;
+    document.getElementById('stat-accuracy').textContent = `${acc}%`;
+    document.getElementById('xp-earned').textContent = `+${xp} XP`;
+    document.getElementById('result-title').textContent = acc >= 80 ? 'Ausgezeichnet! 🏆' : acc >= 60 ? 'Gut gemacht! 👍' : 'Weiter üben! 💪';
+    document.getElementById('result-sub').textContent = `${correctCount} correct out of ${total} questions`;
     showScreen('screen-result');
-  } else {
-    resetExercise();
-    updateProgressDots();
   }
-}
 
-function updateProgressDots() {
-  const dots = document.querySelectorAll('.progress-dot');
-  dots.forEach((d, i) => {
-    d.classList.remove('done','current');
-    if (i < questionIndex) d.classList.add('done');
-    else if (i === questionIndex) d.classList.add('current');
-  });
-}
+  // ── INIT ──────────────────────────────────────────────────
+  loadHomeCounts();
 </script>
 </body>
 </html>
