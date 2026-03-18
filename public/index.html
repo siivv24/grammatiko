@@ -498,7 +498,9 @@ function show(id){
   document.querySelectorAll('.screen.active').forEach(s=>{s.classList.remove('active');s.classList.add('out');setTimeout(()=>s.classList.remove('out'),350);});
   setTimeout(()=>{
     const s=document.getElementById('screen-'+id);
-    if(s){s.classList.add('active');s.scrollTop=0;}
+    if(s){s.classList.add('active');      
+          if (id === 'home') loadHome();
+s.scrollTop=0;}
     const nav=document.getElementById('bottom-nav');
     NAV.includes(id)?nav.classList.add('visible'):nav.classList.remove('visible');
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
