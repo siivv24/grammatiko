@@ -549,7 +549,7 @@ function goLS(){
   const saved=localStorage.getItem('gh_level')||'A1';level=saved;
   document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));
   const el=document.getElementById('lopt-'+saved);if(el)el.classList.add('sel');
-  show('levelselect');
+  show('home');;
 }
 
 function greeting(){const h=new Date().getHours();return h<12?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';}
