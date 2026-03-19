@@ -449,7 +449,6 @@ body{font-family:'Nunito Sans',sans-serif;background:#CBD5E1;color:var(--text);m
 <div class="level-opt" id="lopt-B1" onclick="pickLevel('B1')"><div class="level-badge" style="background:#FEF3C7;color:#D97706">B1</div><div class="level-info"><h4>Kämpfer — Mittelstufe</h4><p>Intermediate learner</p></div></div>
 <div class="level-opt" id="lopt-B2" onclick="pickLevel('B2')"><div class="level-badge" style="background:#FEE2E2;color:#DC2626">B2</div><div class="level-info"><h4>Held — Fortgeschritten</h4><p>Upper intermediate</p></div></div>
 </div>
-<button class="btn-primary" onclick="confirmLevel()">Start Learning! 🚀</button>
 </div></div>
 <div class="screen" id="screen-home">
 <div class="status-bar"><span>9:41</span><span>●●●</span></div>
@@ -568,7 +567,7 @@ body{font-family:'Nunito Sans',sans-serif;background:#CBD5E1;color:var(--text);m
 
 // Load avatar into all img elements from first occurrence
 document.addEventListener('DOMContentLoaded',function(){
-  var av=document.querySelector('.login-avatar');
+  var av=document.querySelector('.splash-avatar')||document.querySelector('.login-mascot-img')||document.querySelector('.login-avatar');
   if(av){['av2','av3','av4','av5'].forEach(function(id){var el=document.getElementById(id);if(el)el.src=av.src;});}
 });
 
@@ -665,7 +664,7 @@ async function doForgot(){
 }
 function doGuest(){user=null;userName='Guest';goLS();}
 
-function pickLevel(lv){document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));document.getElementById('lopt-'+lv).classList.add('sel');level=lv;}
+function pickLevel(lv){document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));document.getElementById('lopt-'+lv).classList.add('sel');level=lv;confirmLevel();}
 function confirmLevel(){localStorage.setItem('gh_level',level);loadHome();show('home');}
 function goLS(){
   const saved=localStorage.getItem('gh_level')||'A1';level=saved;
