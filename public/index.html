@@ -877,10 +877,10 @@ function showStrategy(exam){
   let html = '';
   
   // Intro
-  html += '<div style="margin:0 18px 14px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:20px;padding:18px;color:white">'
-    +'<div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;margin-bottom:6px">'+data.title+'</div>'
-    +'<div style="font-size:13px;opacity:0.9;line-height:1.5">'+data.intro+'</div>'
-    +'</div>';
+  html += `<div style="margin:0 18px 14px; background:linear-gradient(135deg,var(--navy),var(--blue)); border-radius:20px; padding:18px; color:white">
+  <div style="font-family: 'Nunito', sans-serif; font-weight:900; font-size:16px; margin-bottom:6px">${data.title}</div>
+  <div style="font-size:13px; opacity:0.9; line-height:1.5">${data.intro}</div>
+</div>`;
   
   // Steps
   data.steps.forEach(s=>{
