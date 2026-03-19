@@ -780,41 +780,6 @@ function surpriseMe(mod){
   if(!topics.length)return;
   showTopic(mod,Math.floor(Math.random()*topics.length));
 }
-function showTopic(mod,idx){
-  idx=parseInt(idx);
-  topicBack=mod;
-  const exam=mod==='sprechen'?sprExam:schExam;
-  const data=mod==='sprechen'?SPRECHEN_DATA:SCHREIBEN_DATA;
-  const topics=(data[exam]||{})[level]||[];
-  const t=topics[idx];if(!t)return;
-  document.getElementById('topic-title').textContent=t.topic;
-  document.getElementById('topic-back').onclick=()=>goTo(mod);
-  const isSpr=mod==='sprechen';
-  document.getElementById('topic-content').innerHTML=
-    '<div class="topic-hero"><h2>'+(isSpr?'🗣️ ':'✍️ ')+t.topic+'</h2>'
-    +'<p>'+(isSpr?'Sprechen':'Schreiben')+' · '+exam.charAt(0).toUpperCase()+exam.slice(1)+' · '+level+'</p></div>'
-    +'<div class="tip-box"><h4>💡 Tipp</h4><p>'+t.tip+'</p></div>'
-    +'<div class="ex-box"><h4>📝 Beispiel</h4><p>'+t.example+'</p></div>'
-    +(t.structure?'<div class="str-box"><h4>🏗️ Struktur</h4><p>'+t.structure+'</p></div>':'')
-    +'<div style="margin:0 18px 14px;background:white;border:1.5px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)">'
-    +'<div style="font-family:Nunito,sans-serif;font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">🎯 Useful Phrases</div>'
-    +'<div style="font-size:13px;color:var(--text);line-height:2">'
-    +(isSpr
-      ?'Ich denke, dass... <span style="color:var(--muted)">(I think that...)</span><br>Meiner Meinung nach... <span style="color:var(--muted)">(In my opinion...)</span><br>Einerseits... andererseits... <span style="color:var(--muted)">(On one hand...)</span><br>Außerdem... <span style="color:var(--muted)">(Furthermore...)</span><br>Zum Beispiel... <span style="color:var(--muted)">(For example...)</span>'
-      :'Sehr geehrte Damen und Herren, <span style="color:var(--muted)">(formal opening)</span><br>Liebe/r ... <span style="color:var(--muted)">(informal)</span><br>Ich schreibe bezüglich... <span style="color:var(--muted)">(I am writing regarding...)</span><br>Mit freundlichen Grüßen <span style="color:var(--muted)">(formal closing)</span><br>Viele Grüße <span style="color:var(--muted)">(informal closing)</span>')
-    +'</div></div>';
-  show('topic-detail');
-}
-
-const WOTDS=[
-  {word:'die Nachhaltigkeit',en:'sustainability',ex:'Nachhaltigkeit ist wichtig für die Zukunft.',lv:'B1'},
-  {word:'der Augenblick',en:'moment',ex:'Genieße jeden Augenblick.',lv:'A2'},
-  {word:'die Gemütlichkeit',en:'cosiness',ex:'Die Gemütlichkeit ist typisch deutsch.',lv:'B1'},
-  {word:'das Fernweh',en:'wanderlust',ex:'Ich habe Fernweh und möchte reisen.',lv:'B1'},
-  {word:'der Frühling',en:'spring',ex:'Im Frühling blühen die Blumen.',lv:'A1'},
-  {word:'die Leidenschaft',en:'passion',ex:'Musik ist meine große Leidenschaft.',lv:'A2'},
-  {word:'überwältigen',en:'to overwhelm',ex:'Die Landschaft hat mich überwältigt.',lv:'B2'},
-];
 function loadWotdPreview(){const w=WOTDS[new Date().getDate()%WOTDS.length];document.getElementById('wotd-prev').textContent=w.word+' — '+w.en;}
 function showWotd(){renderWotd(WOTDS[new Date().getDate()%WOTDS.length]);show('wotd');}
 function renderWotd(w){
