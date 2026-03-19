@@ -564,6 +564,9 @@ body{font-family:'Nunito Sans',sans-serif;background:#CBD5E1;color:var(--text);m
 </div>
 </div>
 <script>
+// Safety fallbacks
+if(typeof sprTopicsCache==='undefined') var sprTopicsCache={};
+if(typeof reviewData==='undefined') var reviewData={};
 
 // Load avatar into all img elements from first occurrence
 document.addEventListener('DOMContentLoaded',function(){
@@ -573,6 +576,15 @@ document.addEventListener('DOMContentLoaded',function(){
 
 const SB_URL='https://aojtozjudqtpxebfxfyy.supabase.co', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvanRvemp1ZHF0cHhlYmZ4Znl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MjA2MTAsImV4cCI6MjA4OTI5NjYxMH0.uYNP3eO4PoG5qqHnWrycuKa-UpkDWbbdpg3OWrlWrr8';
 const SB_AUTH=SB_URL+'/auth/v1';
+
+// ── STATE ─────────────────────────────────────────────────────
+var user=null, userName='Held', level=localStorage.getItem('gh_level')||'A1';
+var questions=[], qIdx=0, correct=0, answered=false, qType='';
+var sprExam='goethe', schExam='goethe', topicBack='sprechen';
+var dictCache=[], reviewData=JSON.parse(localStorage.getItem('gh_review')||'{}'), currentQ=null;
+var sprTopicsCache={};
+const QN=5;
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvanRvemp1ZHF0cHhlYmZ4Znl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MjA2MTAsImV4cCI6MjA4OTI5NjYxMH0.uYNP3eO4PoG5qqHnWrycuKa-UpkDWbbdpg3OWrlWrr8';
 const NAV=['home','dictionary','translator','review'];
 const TELC_B1_STRATEGY={"title": "telc B1 Sprechen — Teil 2 Strategie", "intro": "In Teil 2 bekommst du eine Karte mit der Meinung einer Person. Du hast 20 Minuten Vorbereitung.", "steps": [{"num": 1, "title": "Text wiedergeben", "time": "30–40 Sek.", "desc": "Berichte was im Text steht. Benutze 3. Person. Nur ~4 Sätze!", "template": "In dem Text steht, dass [Name] [Alter] Jahre alt ist und [Beruf] ist.\nEr/Sie sagt, dass er/sie [Meinung aus dem Text].\nLaut dem Text [weiterer Punkt].\nEr/Sie erwähnt, dass [letzter Punkt].", "tip": "Nicht mehr als 4 Sätze! Nur wiedergeben, nicht bewerten."}, {"num": 2, "title": "Deine Meinung", "time": "60–80 Sek.", "desc": "Sage ob du zustimmst oder anderer Meinung bist. Immer mit 'weil'!", "template": "Ich persönlich finde, dass [deine Meinung].\nAber ich bin ein bisschen anderer Meinung als [Name], weil [Grund].\nMeiner Meinung nach ist es [deine Position], weil [Erklärung].\nIch denke, man sollte [Empfehlung].", "tip": "Immer mit 'weil' begründen — jede Meinung braucht einen Grund!"}, {"num": 3, "title": "Eigene Erfahrung", "time": "Teil von Schritt 2", "desc": "Nur 2–3 Sätze. Persönlich und konkret!", "template": "Bei mir ist das so, dass ich [eigene Erfahrung].\nFrüher habe ich [Vergangenheit], aber jetzt [Gegenwart].\nDas hilft mir wirklich, weil [Grund].", "tip": "Kurz und persönlich — kein langer Monolog!"}, {"num": 4, "title": "Partner fragen ⭐ PFLICHT!", "time": "Teil des Gesprächs", "desc": "Stelle IMMER eine Frage — es ist ein Gespräch, kein Monolog!", "template": "Wie siehst du das?\nHast du damit schon Erfahrungen gemacht?\nWas denkst du — ist das gut oder schlecht?\nWie ist das bei dir persönlich?", "tip": "Ohne Frage verlierst du Punkte! Stelle immer mindestens eine Frage."}, {"num": 5, "title": "Reagieren ⭐ WICHTIGSTER TEIL!", "time": "60–90 Sek.", "desc": "Nie schweigen! Immer reagieren — zustimmen ODER widersprechen.", "template": "Das stimmt, das sehe ich auch so — [ergänze].\nAber ich glaube, es kommt darauf an, [deine Differenzierung].\nFür [Situation A] — ja, absolut. Aber [Situation B] — das finde ich nicht so gut.", "tip": "Das stimmt / Das sehe ich anders — nie einfach schweigen!"}], "agreeing_phrases": ["Das stimmt, das sehe ich genauso.", "Da hast du vollkommen Recht.", "Genau! Das finde ich auch.", "Das ist ein guter Punkt."], "disagreeing_phrases": ["Das sehe ich ein bisschen anders, weil...", "Ja, aber man muss auch bedenken, dass...", "Das stimmt schon, aber ich denke...", "Ich bin nicht ganz sicher, ob das stimmt, weil..."], "followup_questions": ["Wie siehst du das?", "Hast du damit schon Erfahrungen gemacht?", "Was denkst du — ist das gut oder schlecht?", "Wie ist das bei dir persönlich?", "Findest du das auch so?", "Was würdest du in dieser Situation machen?"], "timing": [{"step": "Text wiedergeben", "time": "30–40 Sekunden"}, {"step": "Meinung + Erfahrung", "time": "60–80 Sekunden"}, {"step": "Partner fragen + reagieren", "time": "60–90 Sekunden"}, {"step": "GESAMT", "time": "~4–5 Minuten"}], "golden_rules": ["Immer mit 'weil' begründen — jede Meinung braucht einen Grund!", "Immer den Partner fragen — es ist ein Gespräch, kein Monolog!", "Immer reagieren — 'Das stimmt / Das sehe ich anders' — nie schweigen!"]};
 const GOETHE_B1_STRATEGY={"title": "Goethe B1 Sprechen — Teil 2 Strategie", "intro": "In Teil 2 präsentierst du ein Thema strukturiert. Du hast ca. 4–5 Minuten für deine Präsentation.", "steps": [{"num": 1, "title": "Einleitung", "time": "20–30 Sek.", "desc": "Führe das Thema ein. Zeige, dass du das Thema verstehst.", "template": "Heute möchte ich über [Thema] sprechen.\nDieses Thema ist wichtig, weil [Grund].\nIch werde über [Punkte] sprechen.", "tip": "Kurz und klar — nur 2–3 Sätze als Einleitung."}, {"num": 2, "title": "Persönliche Erfahrung", "time": "40–50 Sek.", "desc": "Erzähle von eigenen Erlebnissen mit dem Thema.", "template": "Ich persönlich habe [Erfahrung] gemacht.\nBei mir zu Hause / In meinem Alltag [konkretes Beispiel].\nDas hat mir gezeigt, dass [Erkenntnis].", "tip": "Konkret und persönlich! Nicht zu allgemein bleiben."}, {"num": 3, "title": "Situation im Heimatland", "time": "40–50 Sek.", "desc": "Vergleiche mit der Situation in deinem Heimatland.", "template": "In meinem Heimatland [Land] ist das [anders/ähnlich].\nBei uns [Beschreibung der Situation].\nIm Vergleich zu Deutschland finde ich, dass [Vergleich].", "tip": "Vergleiche immer mit Deutschland — das zeigt kulturelles Wissen!"}, {"num": 4, "title": "Vor- und Nachteile", "time": "50–60 Sek.", "desc": "Nenne konkrete Vor- und Nachteile zum Thema.", "template": "Ein großer Vorteil ist, dass [Vorteil 1].\nAußerdem [Vorteil 2].\nAuf der anderen Seite gibt es auch Nachteile.\nEin Nachteil ist, dass [Nachteil 1].\nZusätzlich [Nachteil 2].", "tip": "Mindestens 2 Vorteile und 2 Nachteile nennen!"}, {"num": 5, "title": "Meine Meinung", "time": "30–40 Sek.", "desc": "Fasse zusammen und gib deine eigene Meinung.", "template": "Zusammenfassend möchte ich sagen, dass [Fazit].\nMeiner Meinung nach [deine Position], weil [Hauptgrund].\nIch glaube, dass [Zukunftsperspektive oder Empfehlung].", "tip": "Immer mit 'weil' begründen und klar Position beziehen!"}], "useful_phrases": ["Einerseits... andererseits...", "Meiner Meinung nach...", "Ich persönlich finde, dass...", "Im Vergleich dazu...", "Ein weiterer Punkt ist...", "Zusammenfassend möchte ich sagen..."], "connector_words": ["Außerdem / Darüber hinaus (furthermore)", "Jedoch / Allerdings (however)", "Deshalb / Deswegen (therefore)", "Obwohl / Trotzdem (although / nevertheless)", "Zum Beispiel / Wie zum Beispiel (for example)", "Im Gegensatz dazu (in contrast)"], "timing": [{"step": "Einleitung", "time": "20–30 Sekunden"}, {"step": "Persönliche Erfahrung", "time": "40–50 Sekunden"}, {"step": "Situation im Heimatland", "time": "40–50 Sekunden"}, {"step": "Vor- und Nachteile", "time": "50–60 Sekunden"}, {"step": "Meine Meinung", "time": "30–40 Sekunden"}, {"step": "GESAMT", "time": "~4–5 Minuten"}], "golden_rules": ["Immer mit 'weil' begründen — jede Meinung braucht einen Grund!", "Heimatland-Vergleich nicht vergessen — das ist ein Pflichtpunkt!", "Klar strukturieren — der Prüfer folgt deiner Struktur!"]};
@@ -749,13 +761,15 @@ async function loadTopics(mod){
   try{
     const h={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
     const url=SB_URL+'/rest/v1/'+table+'?select=*&exam=eq.'+exam+'&level=eq.'+level+'&order=id';
-    // 8 second timeout
+    console.log('Fetching:', url);
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),8000);
     const r=await fetch(url,{headers:h,signal:controller.signal});
     clearTimeout(timer);
+    console.log('Response status:', r.status);
     if(!r.ok){const txt=await r.text();throw new Error(r.status+': '+txt);}
     const data=await r.json();
+    console.log('Data received:', data.length, 'rows');
     sprTopicsCache[cacheKey]=data;
     renderTopicList(mod,data);
   }catch(e){
