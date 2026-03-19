@@ -797,7 +797,7 @@ function showTopic(mod,idx){
     +'<div class="ex-box"><h4>📝 Beispiel</h4><p>'+t.example+'</p></div>'
     +(t.structure?'<div class="str-box"><h4>🏗️ Struktur</h4><p>'+t.structure+'</p></div>':'')
     +'<div style="margin:0 18px 14px;background:white;border:1.5px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)">'
-    +'<div style="font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">🎯 Useful Phrases</div>'
+    +'<div style="font-family:Nunito,sans-serif;font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">🎯 Useful Phrases</div>'
     +'<div style="font-size:13px;color:var(--text);line-height:2">'
     +(isSpr
       ?'Ich denke, dass... <span style="color:var(--muted)">(I think that...)</span><br>Meiner Meinung nach... <span style="color:var(--muted)">(In my opinion...)</span><br>Einerseits... andererseits... <span style="color:var(--muted)">(On one hand...)</span><br>Außerdem... <span style="color:var(--muted)">(Furthermore...)</span><br>Zum Beispiel... <span style="color:var(--muted)">(For example...)</span>'
@@ -821,7 +821,7 @@ function renderWotd(w){
   document.getElementById('wotd-content').innerHTML=
     '<div style="background:linear-gradient(135deg,#8B5CF6,#3B82F6);border-radius:20px;padding:24px;margin-bottom:14px;color:white;text-align:center">'
     +'<div style="font-size:13px;opacity:0.8;margin-bottom:6px">💡 Wort des Tages</div>'
-    +'<div style="font-family:\'Nunito\',sans-serif;font-size:28px;font-weight:900;margin-bottom:6px">'+w.word+'</div>'
+    +'<div style="font-family:Nunito,sans-serif;font-size:28px;font-weight:900;margin-bottom:6px">'+w.word+'</div>'
     +'<div style="font-size:16px;opacity:0.9">'+w.en+'</div>'
     +'<div style="margin-top:8px;background:rgba(255,255,255,0.15);border-radius:8px;padding:4px 12px;display:inline-block;font-size:12px">'+w.lv+'</div>'
     +'</div>'
@@ -1142,6 +1142,81 @@ function showEnhancedTopic(t, exam){
 }
 
 // Override loadTopics to use enhanced data for B1
+
+
+function renderTopicList(mod, topics){
+  const elId=mod==='sprechen'?'sprechen-topics':'schreiben-topics';
+  const el=document.getElementById(elId);
+  if(!el)return;
+  if(!topics||!topics.length){
+    el.innerHTML='<div style="margin:20px;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:20px;padding:28px 20px;text-align:center"><div style="font-size:48px;margin-bottom:12px">🚧</div><div style="font-family:Nunito,sans-serif;font-weight:900;font-size:18px;color:#1E3A5F;margin-bottom:8px">Coming Soon!</div><div style="font-size:13px;color:#64748B">Topics for this level are being prepared.<br>Currently available: <strong>B1</strong></div></div>';
+    return;
+  }
+  // Build list using DOM (avoids string escaping issues)
+  el.innerHTML='';
+  topics.forEach((t,i)=>{
+    const div=document.createElement('div');
+    div.className='topic-item';
+    div.innerHTML='<div class="topic-num">'+t.id+'</div><div class="topic-body"><h4>'+t.topic+'</h4>'+(t.tip?'<p>'+t.tip+'</p>':'')+'</div><div class="topic-arrow">›</div>';
+    div.addEventListener('click',()=>showTopicFromDB(mod,i));
+    el.appendChild(div);
+  });
+}
+function showTopicFromDB(mod,idx){
+  idx=parseInt(idx);
+  const exam=mod==='sprechen'?sprExam:schExam;
+  const cacheKey=(mod==='sprechen'?'sprechen':'schreiben')+'-'+exam+'-'+level;
+  const topics=sprTopicsCache[cacheKey]||[];
+  const t=topics[idx];
+  if(!t)return;
+  document.getElementById('topic-title').textContent=t.topic;
+  document.getElementById('topic-back').onclick=()=>goTo(mod);
+  if(mod==='sprechen'){
+    if(exam==='telc') showEnhancedTopic(t,'telc');
+    else showGoetheTopicFromDB(t);
+  } else {
+    showSchreibenTopicFromDB(t);
+  }
+}
+
+function showGoetheTopicFromDB(t){
+  let html='<div class="topic-hero"><h2>🗣️ '+t.topic+'</h2><p>Sprechen · Goethe · '+level+'</p></div>';
+  const steps=[
+    {icon:'🎬',title:'1. Einleitung',content:t.step1,color:'#DBEAFE'},
+    {icon:'👤',title:'2. Persönliche Erfahrung',content:t.step2,color:'#DCFCE7'},
+    {icon:'🌍',title:'3. Situation im Heimatland',content:t.step3,color:'#FEF3C7'},
+    {icon:'⚖️',title:'4. Vor- und Nachteile',content:t.step4,color:'#FCE7F3'},
+    {icon:'💬',title:'5. Meine Meinung',content:t.step5,color:'#FEE2E2'},
+  ];
+  steps.forEach(s=>{
+    if(!s.content)return;
+    html+='<div class="topic-step"><div class="topic-step-header">'
+      +'<div class="topic-step-icon" style="background:'+s.color+'">'+s.icon+'</div>'
+      +'<div class="topic-step-title">'+s.title+'</div>'
+      +'</div><div class="topic-step-content">'+s.content+'</div></div>';
+  });
+  if(t.vocab){
+    html+='<div class="vocab-box"><h4>📚 Wichtiges Vokabular</h4>';
+    t.vocab.split('|').forEach(v=>{html+='<div class="vocab-item">'+v.trim()+'</div>';});
+    html+='</div>';
+  }
+  document.getElementById('topic-content').innerHTML=html;
+  show('topic-detail');
+}
+
+function showSchreibenTopicFromDB(t){
+  let html='<div class="topic-hero"><h2>✍️ '+t.topic+'</h2><p>Schreiben · '+(t.exam||'')+' · '+level+'</p></div>';
+  if(t.tip)html+='<div class="tip-box"><h4>💡 Tipp</h4><p>'+t.tip+'</p></div>';
+  if(t.example)html+='<div class="ex-box"><h4>📝 Aufgabe</h4><p>'+t.example+'</p></div>';
+  if(t.structure)html+='<div class="str-box"><h4>🏗️ Struktur</h4><p>'+t.structure+'</p></div>';
+  if(t.phrases){
+    html+='<div style="margin:0 18px 14px;background:white;border:1.5px solid var(--border);border-radius:16px;padding:16px">'
+      +'<div style="font-family:Nunito,sans-serif;font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">🎯 Phrasen</div>'
+      +'<div style="font-size:13px;line-height:2">'+t.phrases+'</div></div>';
+  }
+  document.getElementById('topic-content').innerHTML=html;
+  show('topic-detail');
+}
 
 async function init(){
   const token=localStorage.getItem('gh_token');
