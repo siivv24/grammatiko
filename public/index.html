@@ -733,19 +733,25 @@ function showGrammar(idx){
   show('grammar-detail');
 }
 
-function loadTopics(mod){
+async function loadTopics(mod){
   const exam=mod==='sprechen'?sprExam:schExam;
-  const data=mod==='sprechen'?SPRECHEN_DATA:SCHREIBEN_DATA;
-  const topics=(data[exam]||{})[level]||[];
-  const id=mod+'s-topics';
+  const table=mod==='sprechen'?'sprechen':'schreiben';
   const el=document.getElementById(mod==='sprechen'?'sprechen-topics':'schreiben-topics');
   if(!el)return;
-  el.innerHTML=topics.length?topics.map(t=>
-    '<div class="topic-item" onclick="showTopic(\''+mod+'\',\''+(t.id-1)+'\')">'
-    +'<div class="topic-num">'+t.id+'</div>'
-    +'<div class="topic-body"><h4>'+t.topic+'</h4><p>'+t.tip+'</p></div>'
-    +'<div class="topic-arrow">›</div></div>'
-  ).join(''):'<div style="text-align:center;padding:30px;color:var(--muted);font-weight:700">No topics for this level yet</div>';
+  el.innerHTML='<div class="loading-box" style="height:120px"><div class="spinner"></div></div>';
+  const cacheKey=table+'-'+exam+'-'+level;
+  if(sprTopicsCache[cacheKey]){renderTopicList(mod,sprTopicsCache[cacheKey]);return;}
+  try{
+    const h={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+    const url=SB_URL+'/rest/v1/'+table+'?select=*&exam=eq.'+exam+'&level=eq.'+level+'&order=id';
+    const r=await fetch(url,{headers:h});
+    if(!r.ok)throw new Error('Failed');
+    const data=await r.json();
+    sprTopicsCache[cacheKey]=data;
+    renderTopicList(mod,data);
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--red);font-weight:700">❌ Error: '+e.message+'<br><br>Table: '+table+' | Exam: '+exam+' | Level: '+level+'</div>';
+  }
 }
 function switchExam(mod,exam){
   if(mod==='sprechen'){
