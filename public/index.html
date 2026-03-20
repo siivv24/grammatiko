@@ -605,7 +605,7 @@ var GRAMMAR_DATA={"A1": [{"topic": "Nominativ", "exam_pct": 85, "speaking_pct": 
 var user=null,userName='Held',level=localStorage.getItem('gh_level')||'A1';
 var questions=[],qIdx=0,correct=0,answered=false,qType='';
 var sprExam='goethe',schExam='goethe',topicBack='sprechen';
-let dictCache=[],reviewData=JSON.parse(localStorage.getItem('gh_review')||'{}'),currentQ=null;
+var dictCache=[],reviewData=JSON.parse(localStorage.getItem('gh_review')||'{}'),currentQ=null;
 var QN=5;
 
 function show(id){
