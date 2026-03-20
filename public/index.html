@@ -379,6 +379,7 @@ body{font-family:'Nunito Sans',sans-serif;background:#2d1b69;color:var(--text);m
       <div class="level-opt" id="lopt-B1" onclick="pickLevel('B1')"><div class="level-badge" style="background:#FEF3C7;color:#D97706">B1</div><div class="level-info"><h4>Kämpfer — Mittelstufe</h4><p>Intermediate learner</p></div></div>
       <div class="level-opt" id="lopt-B2" onclick="pickLevel('B2')"><div class="level-badge" style="background:#FEE2E2;color:#DC2626">B2</div><div class="level-info"><h4>Held — Fortgeschritten</h4><p>Upper intermediate</p></div></div>
     </div>
+    <button class="btn-primary" onclick="confirmLevel()" style="margin-top:4px">Start Learning! 🚀</button>
   </div>
 </div>
 
@@ -618,7 +619,7 @@ async function doLogin(){
     const d=await r.json();if(d.error)throw new Error(d.error_description||d.error);
     user=d.user;userName=d.user.user_metadata?.name||email.split('@')[0];
     localStorage.setItem('gh_token',d.access_token);
-    showMsg('✅ Welcome back!','ok');setTimeout(()=>goLS(),600);
+    showMsg('✅ Welcome back!','ok');setTimeout(()=>{showSplash();show('levelselect');var el=document.getElementById('lopt-'+level);if(el){document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}},600);
   }catch(e){showMsg('❌ '+e.message,'err');}
   finally{btn.disabled=false;btn.textContent='Log In Now →';}
 }
@@ -643,7 +644,7 @@ async function doForgot(){
   await fetch(SB_AUTH+'/recover',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email})});
   showMsg('📧 Reset email sent!','ok');
 }
-function doGuest(){user=null;userName='Guest';showSplash();goLS();}
+function doGuest(){user=null;userName='Guest';showSplash();show('levelselect');document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));}
 
 // ── LEVEL SELECT ──────────────────────────────────────────────
 function pickLevel(lv){
