@@ -574,8 +574,9 @@ document.addEventListener('DOMContentLoaded',function(){
   if(av){['av2','av3','av4','av5'].forEach(function(id){var el=document.getElementById(id);if(el)el.src=av.src;});}
 });
 
-const SB_URL='https://aojtozjudqtpxebfxfyy.supabase.co', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvanRvemp1ZHF0cHhlYmZ4Znl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MjA2MTAsImV4cCI6MjA4OTI5NjYxMH0.uYNP3eO4PoG5qqHnWrycuKa-UpkDWbbdpg3OWrlWrr8';
-const SB_AUTH=SB_URL+'/auth/v1';
+var SB_URL='https://aojtozjudqtpxebfxfyy.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvanRvemp1ZHF0cHhlYmZ4Znl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MjA2MTAsImV4cCI6MjA4OTI5NjYxMH0.uYNP3eO4PoG5qqHnWrycuKa-UpkDWbbdpg3OWrlWrr8';
+var SB_AUTH=SB_URL+'/auth/v1';
 
 // ── STATE ─────────────────────────────────────────────────────
 var user=null, userName='Held', level=localStorage.getItem('gh_level')||'A1';
