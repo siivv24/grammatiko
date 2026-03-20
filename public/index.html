@@ -322,7 +322,7 @@ body{font-family:'Nunito Sans',sans-serif;background:#2d1b69;color:var(--text);m
     </div>
     <div class="tagline-anim">Deutsch lernen — einfach &amp; smart 🚀</div>
     <div class="btns-anim">
-      <button class="btn-primary" style="border-radius:99px;background:white;color:var(--pu);box-shadow:0 8px 24px rgba(0,0,0,0.2)" onclick="showAuthForm('login')">Get Started →</button>
+      <button class="btn-primary" style="border-radius:99px;background:white;color:var(--pu);box-shadow:0 8px 24px rgba(0,0,0,0.2)" onclick="showAuthForm('signup')">Get Started →</button>
       <div class="splash-link" style="color:rgba(255,255,255,0.65);font-size:13px;font-weight:600">Already have an account? <span style="color:white;font-weight:800;cursor:pointer" onclick="showAuthForm('login')">Log in</span></div>
     </div>
   </div>
@@ -619,7 +619,7 @@ async function doLogin(){
     const d=await r.json();if(d.error)throw new Error(d.error_description||d.error);
     user=d.user;userName=d.user.user_metadata?.name||email.split('@')[0];
     localStorage.setItem('gh_token',d.access_token);
-    showMsg('✅ Welcome back!','ok');setTimeout(()=>{showSplash();show('levelselect');var el=document.getElementById('lopt-'+level);if(el){document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}},600);
+    showMsg('✅ Welcome back!','ok');setTimeout(()=>{const sv=localStorage.getItem('gh_level');if(sv){level=sv;loadHome();show('home');}else{showLevelSelect();}},600);
   }catch(e){showMsg('❌ '+e.message,'err');}
   finally{btn.disabled=false;btn.textContent='Log In Now →';}
 }
@@ -633,8 +633,8 @@ async function doSignup(){
   try{
     const r=await fetch(SB_AUTH+'/signup',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password:pw,data:{name}})});
     const d=await r.json();if(d.error)throw new Error(d.error_description||d.error);
-    showMsg('🎉 Account created! Check email then login.','ok');
-    setTimeout(()=>switchTab('login'),2000);
+    showMsg('🎉 Account created!','ok');
+    setTimeout(()=>showLevelSelect(),1500);
   }catch(e){showMsg('❌ '+e.message,'err');}
   finally{btn.disabled=false;btn.textContent='Get Set to Explore →';}
 }
@@ -644,7 +644,7 @@ async function doForgot(){
   await fetch(SB_AUTH+'/recover',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email})});
   showMsg('📧 Reset email sent!','ok');
 }
-function doGuest(){user=null;userName='Guest';showSplash();show('levelselect');document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));}
+function doGuest(){user=null;userName='Guest';showLevelSelect();}
 
 // ── LEVEL SELECT ──────────────────────────────────────────────
 function pickLevel(lv){
@@ -653,6 +653,12 @@ function pickLevel(lv){
   level=lv;confirmLevel();
 }
 function confirmLevel(){localStorage.setItem('gh_level',level);loadHome();show('home');}
+function showLevelSelect(){
+  showSplash();
+  document.querySelectorAll('.level-opt').forEach(o=>o.classList.remove('sel'));
+  const el=document.getElementById('lopt-'+(level||'A1'));if(el)el.classList.add('sel');
+  show('levelselect');
+}
 function goLS(){
   showSplash();
   level=localStorage.getItem('gh_level')||'A1';
@@ -1088,11 +1094,17 @@ document.addEventListener('DOMContentLoaded',function(){
 
 async function init(){
   const token=localStorage.getItem('gh_token');
+  const savedLevel=localStorage.getItem('gh_level');
   if(token){
     try{
       const r=await fetch(SB_AUTH+'/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token}});
       const d=await r.json();
-      if(d.id){user=d;userName=d.user_metadata?.name||d.email?.split('@')[0]||'Held';goLS();return;}
+      if(d.id){
+        user=d;userName=d.user_metadata?.name||d.email?.split('@')[0]||'Held';
+        if(savedLevel){level=savedLevel;loadHome();show('home');}
+        else{showLevelSelect();}
+        return;
+      }
     }catch(e){}
   }
   show('login');
