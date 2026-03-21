@@ -1093,7 +1093,7 @@ async function loadDict(){
 function norm(s) {
   return (s || '').toLowerCase().replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u').replace(/ß/g,'ss');
 }
-  res.innerHTML=m.map(d=>
+  const resultsBox = document.getElementById('dict-results');     if (resultsBox && m) {         resultsBox.innerHTML = m.map(d => `             <div class="dict-item">                 <strong>${d.word}</strong> (${d.type})<br>                 <span>${d.translation}</span>             </div>         `).join('');     }
     '<div class="dict-item">'
     +'<div class="dict-word-row"><span class="dict-art art-'+d.article+'">'+d.article+'</span><span class="dict-word">'+d.word+'</span></div>'
     +(d.english?'<div class="dict-eng">🇬🇧 '+d.english+'</div>':'')
