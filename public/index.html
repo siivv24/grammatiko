@@ -1074,17 +1074,24 @@ function loadReview(){
 function initDict(){if(!dictCache.length)loadDict();}
 async function loadDict(){
   loading('dict-results','Loading dictionary...');
-  try{
-    const [b1,b2,b3]=await Promise.all([
-      sbFetch('/rest/v1/dictionary?select=*&order=id&offset=0&limit=1000'),
-      sbFetch('/rest/v1/dictionary?select=*&order=id&offset=1000&limit=1000'),
-      sbFetch('/rest/v1/dictionary?select=*&order=id&offset=2000&limit=1000'),
-    ]);
-    dictCache=[...b1,...b2,...b3];
-    document.getElementById('dict-results').innerHTML='<div class="dict-empty">🔍 Search any German word<br>or English translation<br><br><span style="font-size:28px">🇩🇪 ↔ 🇬🇧</span></div>';
-  } catch (error) {
+  try {
+        const resultsBox = document.getElementById('dict-results');
+        
+        if (!m || m.length === 0) {
+            resultsBox.innerHTML = '<div class="dict-empty">🔍 No results found.</div>';
+            return;
+        }
+
+        resultsBox.innerHTML = m.map(d => `
+            <div class="dict-item">
+                <strong>${d.word}</strong> (${d.type})<br>
+                <span>${d.translation}</span>
+            </div>
+        `).join('');
+
+    } catch (error) {
         console.error("Failed to load dictionary:", error);
-        var resultsBox = document.getElementById('dict-results');
+        const resultsBox = document.getElementById('dict-results');
         if (resultsBox) {
             resultsBox.innerHTML = 'Could not load dictionary.';
         }
