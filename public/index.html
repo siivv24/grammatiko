@@ -589,8 +589,10 @@ function navTo(id){
 
 // ── AUTH ──────────────────────────────────────────────────────
 function showSplash(){
-  const af=document.getElementById('auth-form-view');if(af)af.classList.remove('visible');
-  const sp=document.getElementById('splash-view');if(sp)sp.style.display='flex';
+  const af=document.getElementById('auth-form-view');
+  if(af)af.classList.remove('visible');
+  const sp=document.getElementById('splash-view');
+  if(sp)sp.style.display='flex';
 }
 function showAuthForm(tab) {
   var splashView = document.getElementById('splash-view');
