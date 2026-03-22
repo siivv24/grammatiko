@@ -1564,7 +1564,7 @@ function loadProfile(){
       return '<div class="rev-card"><div class="rev-card-top"><div class="rev-card-title">'+topic+'</div><div class="str-dots">'+dots('bad')+'</div></div>'
         +'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">'
         +'<div class="rev-card-sub">'+d.c+'/'+d.t+' correct ('+pct+'%)</div>'
-        +'<button class="redo-btn" onclick="redoTopic(''+topic+'')">↺ Redo</button>'
+        +`<button class="redo-btn" onclick="redoTopic('${topic}')">↺ Redo</button>`
         +'</div></div>';
     }).join('')
     :'<div class="empty-rev">🎉 No weak topics! Keep practicing.</div>';
