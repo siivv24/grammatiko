@@ -1464,15 +1464,19 @@ function showFcCard(){
   const actions=document.getElementById('fc-actions');
   actions.style.opacity='0';
   actions.style.pointerEvents='none';
-  // Fill front
+  // Fill front - NO article shown (noun type)
   document.getElementById('fc-type').textContent=c.type.toUpperCase();
-  document.getElementById('fc-article').textContent=c.article?(c.article+' '):'';
+  document.getElementById('fc-article').textContent=''; // hidden on front
   document.getElementById('fc-word').textContent=c.word;
   document.getElementById('fc-lvl').textContent=c.level||level;
-  // Fill back
-  document.getElementById('fc-english').textContent=c.english||'';
-  document.getElementById('fc-ex-de').textContent=c.example_de||'';
-  document.getElementById('fc-ex-en').textContent=c.example_en||'';
+  // Fill back - show article + english + example translation for nouns
+  const articlePrefix = (c.type==='noun' && c.article) ? c.article+' ' : '';
+  document.getElementById('fc-english').textContent=articlePrefix+(c.english||'');
+  // For nouns from dictionary, build example translation
+  const exDe = c.example_de || c.example_sentence || '';
+  const exEn = c.example_en || (c.type==='noun' ? '(example sentence above)' : '');
+  document.getElementById('fc-ex-de').textContent=exDe;
+  document.getElementById('fc-ex-en').textContent=exEn;
   document.getElementById('fc-extra').textContent=c.extra_meanings?'💡 Also: '+c.extra_meanings:'';
   // Update progress
   const pct=Math.round((fcIndex/fcDeck.length)*100);
