@@ -1681,10 +1681,7 @@ function getCompletedCount(){
 }
 
 function isChapterUnlocked(chNum){
-  if(chNum===1)return true; // first chapter always unlocked
-  const p=getChProgress();
-  // Previous chapter must be completed
-  return p[chNum-1]&&p[chNum-1].completed;
+  return true; // all chapters open
 }
 
 function updateLessonHomeCard(){
