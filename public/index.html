@@ -1606,7 +1606,7 @@ function showFcCard(){
   actions.style.pointerEvents='none';
   // Fill front
   document.getElementById('fc-type').textContent=c.type.toUpperCase();
-  document.getElementById('fc-article').textContent=c.article?(c.article+' '):'';
+  document.getElementById('fc-article').textContent=''; // hide on front
   document.getElementById('fc-word').textContent=c.word;
   document.getElementById('fc-lvl').textContent=c.level||level;
   // Fill back
@@ -1719,49 +1719,62 @@ async function loadLessons(){
 
 function renderLessonsList(){
   const p=getChProgress();
-  const phases=[...new Set(chaptersCache.map(c=>c.phase_name))];
-  let html='';
+  // Sort chapters by chapter_num to ensure correct order
+  const sorted=[...chaptersCache].sort((a,b)=>a.chapter_num-b.chapter_num);
+  let h='';
   let lastPhase='';
 
-  chaptersCache.forEach((ch,i)=>{
+  sorted.forEach((ch,i)=>{
     const prog=p[ch.chapter_num]||{completed:false,screensCompleted:[]};
-    const unlocked=isChapterUnlocked(ch.chapter_num);
     const done=prog.completed;
-    const active=unlocked&&!done;
+    const isLast=i===sorted.length-1;
+    const screensComp=(prog.screensCompleted||[]).length;
+    const totalScreens=6;
+    const pct=done?100:Math.round((screensComp/totalScreens)*100);
 
     // Phase header
     if(ch.phase_name!==lastPhase){
-      const phaseNum=ch.phase;
-      html+=`<div class="phase-header">
-        <div class="phase-num">${phaseNum}</div>
+      h+=`<div class="phase-header">
+        <div class="phase-num">${ch.phase}</div>
         <div><div class="phase-title">${ch.phase_name}</div></div>
       </div>`;
       lastPhase=ch.phase_name;
     }
 
-    const dotClass=done?'done':active?'active':'locked';
-    const dotIcon=done?'✅':active?'📖':'🔒';
-    const lineClass=done?'done':'';
-    const isLast=i===chaptersCache.length-1;
-    const screensComp=(prog.screensCompleted||[]).length;
+    // Ring colors
+    const ringColor=done?'#22C55E':pct>0?'var(--pu)':'var(--border)';
+    const ringBg=done?'#F0FDF4':pct>0?'var(--pu-light)':'white';
+    const checkmark=done?`<div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:#22C55E;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:10px">✓</div>`:'';
 
-    html+=`<div class="chapter-timeline">
-      <div class="chapter-item" onclick="${unlocked?'openChapter('+ch.chapter_num+')':'showLockedMsg()'}">
+    h+=`<div class="chapter-timeline">
+      <div class="chapter-item" onclick="openChapter(${ch.chapter_num})" style="cursor:pointer">
         <div class="chapter-dot-wrap">
-          <div class="chapter-dot ${dotClass}">${dotIcon}</div>
-          ${!isLast?`<div class="chapter-line ${lineClass}"></div>`:''}
+          <div style="position:relative">
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="20" fill="${ringBg}" stroke="${ringColor}" stroke-width="3"/>
+              <circle cx="24" cy="24" r="20" fill="none" stroke="${done?'#22C55E':pct>0?'var(--pu)':'transparent'}" stroke-width="3"
+                stroke-dasharray="${Math.round(2*3.14159*20)}" 
+                stroke-dashoffset="${Math.round(2*3.14159*20*(1-pct/100))}"
+                transform="rotate(-90 24 24)" stroke-linecap="round"/>
+              <text x="24" y="29" text-anchor="middle" font-size="16" font-family="Nunito" font-weight="900" 
+                fill="${done?'#22C55E':pct>0?'var(--pu)':'var(--muted)'}">${done?'✓':ch.chapter_num}</text>
+            </svg>
+            ${checkmark}
+          </div>
+          ${!isLast?`<div style="width:2px;height:20px;background:${done?'#22C55E':'var(--border)'};margin:2px auto"></div>`:''}
         </div>
         <div class="chapter-body">
           <div class="chapter-num">Chapter ${ch.chapter_num}</div>
           <div class="chapter-title">${ch.title}</div>
           <div class="chapter-sub">${ch.subtitle}</div>
-          ${active&&screensComp>0?`<div class="chapter-prog-bar"><div class="chapter-prog-fill" style="width:${Math.round(screensComp/6*100)}%"></div></div>`:''}
+          ${pct>0&&!done?`<div style="margin-top:6px;height:4px;background:var(--border);border-radius:99px;overflow:hidden;width:100px"><div style="height:100%;width:${pct}%;background:var(--pu);border-radius:99px"></div></div>`:''}
+          ${done?`<div style="margin-top:4px;font-size:11px;color:#22C55E;font-weight:700">Completed ✓</div>`:''}
         </div>
       </div>
     </div>`;
   });
 
-  document.getElementById('lessons-list').innerHTML=html;
+  document.getElementById('lessons-list').innerHTML=h;
 }
 
 function showLockedMsg(){
@@ -1769,8 +1782,9 @@ function showLockedMsg(){
 }
 
 async function openChapter(chNum){
+  chNum=parseInt(chNum);
   const ch=chaptersCache.find(c=>c.chapter_num===chNum);
-  if(!ch)return;
+  if(!ch){console.error('Chapter not found:',chNum);return;}
   currentChapter=ch;
   currentScreenIdx=0;
   safetyAnswered=false;
@@ -1781,8 +1795,16 @@ async function openChapter(chNum){
       chScreensCache[chNum]=await sbFetch('/rest/v1/chapter_screens?select=*&chapter_id=eq.'+chNum+'&order=screen_num');
     }
     chScreens=chScreensCache[chNum];
+    if(!chScreens.length){
+      document.getElementById('ch-content').innerHTML='<div class="ch-instruction-card" style="text-align:center;padding:30px"><div style="font-size:48px">🚧</div><div style="font-family:Nunito,sans-serif;font-weight:900;font-size:18px;margin-top:12px">Content Coming Soon!</div><div style="color:var(--muted);margin-top:8px">This chapter is being prepared</div></div>';
+      document.getElementById('ch-next-btn').style.display='none';
+      return;
+    }
     renderChapterScreen();
-  }catch(e){errBox('ch-content','Could not load chapter content.');}
+  }catch(e){
+    console.error('openChapter error:',e);
+    errBox('ch-content','Could not load chapter. Check Supabase chapter_screens table.');
+  }
 }
 
 function renderChapterScreen(){
