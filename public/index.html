@@ -768,6 +768,7 @@ body{font-family:'Nunito Sans',sans-serif;background:#2d1b69;color:var(--text);m
         <div class="fc-tap">👆 Tap to reveal</div>
       </div>
       <div class="fc-face fc-back">
+        <div id="fc-article-back" style="font-family:Nunito,sans-serif;font-weight:900;font-size:16px;color:var(--pu);margin-bottom:4px;display:none"></div>
         <div class="fc-english" id="fc-english">translation</div>
         <div class="fc-example" id="fc-example">
           <div class="fc-example-de" id="fc-ex-de">example</div>
@@ -1609,10 +1610,21 @@ function showFcCard(){
   document.getElementById('fc-article').textContent=''; // hide on front
   document.getElementById('fc-word').textContent=c.word;
   document.getElementById('fc-lvl').textContent=c.level||level;
-  // Fill back
+  // Fill back - show article on its own line for nouns
+  const articleEl=document.getElementById('fc-article-back');
+  if(articleEl){
+    if(c.type==='noun'&&c.article){
+      articleEl.textContent=c.article;
+      articleEl.style.display='block';
+    } else {
+      articleEl.style.display='none';
+    }
+  }
   document.getElementById('fc-english').textContent=c.english||'';
-  document.getElementById('fc-ex-de').textContent=c.example_de||'';
-  document.getElementById('fc-ex-en').textContent=c.example_en||'';
+  const exDe=c.example_de||c.example_sentence||'';
+  const exEn=c.example_en||'';
+  document.getElementById('fc-ex-de').textContent=exDe;
+  document.getElementById('fc-ex-en').textContent=exEn;
   document.getElementById('fc-extra').textContent=c.extra_meanings?'💡 Also: '+c.extra_meanings:'';
   // Update progress
   const pct=Math.round((fcIndex/fcDeck.length)*100);
@@ -1916,9 +1928,11 @@ function renderMistake(s,data){
 }
 
 function renderSafetyCheck(s,data){
+  // Store data globally to avoid string escaping issues in onclick
+  window._safetyData=data;
   let opts='';
   (data.options||[]).forEach((opt,i)=>{
-    opts+=`<div class="safety-opt" id="safety-opt-${i}" onclick="checkSafety(${i},${data.correct},'${(data.feedback_correct||'').replace(/'/g,"\'")}','${(data.feedback_wrong||'').replace(/'/g,"\'")}')"> ${opt}</div>`;
+    opts+=`<div class="safety-opt" id="safety-opt-${i}" onclick="checkSafety(${i})">${opt}</div>`;
   });
   return `<div class="safety-card">
     <div class="safety-q">${data.question||s.body}</div>
@@ -1927,9 +1941,13 @@ function renderSafetyCheck(s,data){
   </div>`;
 }
 
-function checkSafety(chosen,correct,fbOk,fbWrong){
+function checkSafety(chosen){
   if(safetyAnswered)return;
   safetyAnswered=true;
+  const data=window._safetyData||{};
+  const correct=data.correct||0;
+  const fbOk=data.feedback_correct||'Correct!';
+  const fbWrong=data.feedback_wrong||'Not quite!';
   document.querySelectorAll('.safety-opt').forEach((el,i)=>{
     if(i===correct)el.classList.add('correct');
     else if(i===chosen&&chosen!==correct)el.classList.add('wrong');
@@ -1946,7 +1964,8 @@ function checkSafety(chosen,correct,fbOk,fbWrong){
     }
   }
   setTimeout(()=>{
-    document.getElementById('ch-next-btn').style.display='block';
+    const btn=document.getElementById('ch-next-btn');
+    if(btn)btn.style.display='block';
   },800);
 }
 
