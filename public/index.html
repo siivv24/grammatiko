@@ -482,6 +482,40 @@ body{font-family:'Nunito Sans',sans-serif;background:#2d1b69;color:var(--text);m
 /* Chapter quiz */
 .ch-next-btn{margin:0 18px;width:calc(100% - 36px);}
 
+
+/* ── CHAPTER QUIZ NEW ── */
+.chq-wrap{padding:0 18px 20px;}
+.chq-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);margin-bottom:0;}
+.chq-progress-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;flex:1;margin:0 12px;}
+.chq-progress-fill{height:100%;background:var(--pu);border-radius:99px;transition:width 0.4s ease;}
+.chq-counter{display:flex;gap:8px;}
+.chq-wrong{background:#FEE2E2;color:#B91C1C;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:4px;}
+.chq-right{background:#DCFCE7;color:#15803D;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:4px;}
+.chq-qnum{font-size:12px;color:var(--muted);font-weight:700;}
+.chq-question{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text);line-height:1.5;padding:16px 18px 12px;}
+.chq-opt{margin:0 18px 10px;background:white;border:2px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all 0.2s;display:flex;align-items:flex-start;gap:12px;}
+.chq-opt:hover:not(.chq-disabled){border-color:var(--pu);background:var(--pu-light);}
+.chq-opt.chq-disabled{cursor:default;}
+.chq-opt.chq-correct{border-color:#22C55E;background:#F0FDF4;}
+.chq-opt.chq-wrong-ans{border-color:#EF4444;background:#FEF2F2;}
+.chq-opt-letter{width:28px;height:28px;border-radius:50%;background:var(--pu-mid);color:var(--pu);font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chq-correct .chq-opt-letter{background:#22C55E;color:white;}
+.chq-wrong-ans .chq-opt-letter{background:#EF4444;color:white;}
+.chq-opt-body{flex:1;}
+.chq-opt-text{font-size:14px;font-weight:700;color:var(--text);}
+.chq-rationale{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.4;display:none;}
+.chq-correct .chq-rationale,.chq-wrong-ans .chq-rationale{display:block;}
+.chq-correct .chq-rationale{color:#15803D;}
+.chq-wrong-ans .chq-rationale{color:#B91C1C;}
+.chq-hint-wrap{margin:0 18px 14px;}
+.chq-hint-btn{background:none;border:none;color:var(--pu);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;}
+.chq-hint-body{background:var(--pu-light);border-radius:12px;padding:10px 14px;margin-top:8px;font-size:13px;color:var(--navy);display:none;line-height:1.5;}
+.chq-hint-body.show{display:block;}
+.chq-nav{display:flex;justify-content:space-between;padding:0 18px;margin-top:8px;gap:10px;}
+.chq-back-btn{background:white;border:2px solid var(--border);color:var(--text);border-radius:12px;padding:12px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;}
+.chq-next-btn-q{flex:1;background:var(--pu);color:white;border:none;border-radius:12px;padding:12px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;opacity:0.4;pointer-events:none;transition:all 0.2s;}
+.chq-next-btn-q.ready{opacity:1;pointer-events:all;}
+
 </style>
 </head>
 <body>
@@ -1970,7 +2004,6 @@ function checkSafety(chosen){
 }
 
 async function renderChQuiz(){
-  // Load quiz questions for this chapter
   const chNum=currentChapter.chapter_num;
   if(!chQuizCache[chNum]){
     try{
@@ -1979,66 +2012,145 @@ async function renderChQuiz(){
   }
   const qs=chQuizCache[chNum];
   if(!qs.length){
-    document.getElementById('ch-content').innerHTML='<div class="ch-instruction-card" style="text-align:center;padding:30px"><div style="font-size:48px;margin-bottom:12px">🚧</div><div style="font-family:Nunito,sans-serif;font-weight:900;font-size:18px">Quiz Coming Soon!</div><div style="color:var(--muted);margin-top:8px">Questions being prepared</div></div>';
+    document.getElementById('ch-content').innerHTML='<div class="ch-instruction-card" style="text-align:center;padding:30px"><div style="font-size:48px;margin-bottom:12px">🚧</div><div style="font-family:Nunito,sans-serif;font-weight:900;font-size:18px">Quiz Coming Soon!</div><div style="color:var(--muted);margin-top:8px">Questions being prepared for this chapter</div></div>';
     document.getElementById('ch-next-btn').style.display='block';
     document.getElementById('ch-next-btn').textContent='Complete Chapter 🎉';
     return;
   }
-  // Simple quiz renderer
   startChQuiz(qs);
 }
 
-var chQuizQs=[], chQuizIdx=0, chQuizCorrect=0;
+var chQuizQs=[], chQuizIdx=0, chQuizWrong=0, chQuizCorrect=0, chQuizAnswered=false;
+
 function startChQuiz(qs){
-  chQuizQs=qs;chQuizIdx=0;chQuizCorrect=0;
+  chQuizQs=qs;chQuizIdx=0;chQuizWrong=0;chQuizCorrect=0;chQuizAnswered=false;
+  document.getElementById('ch-next-btn').style.display='none';
   showChQuizQ();
 }
+
 function showChQuizQ(){
-  if(chQuizIdx>=chQuizQs.length){
-    // Quiz done
-    const pct=Math.round((chQuizCorrect/chQuizQs.length)*100);
-    document.getElementById('ch-content').innerHTML=`<div class="ch-instruction-card" style="text-align:center;padding:30px">
-      <div style="font-size:60px;margin-bottom:14px">${pct>=70?'🎉':'💪'}</div>
-      <div style="font-family:Nunito,sans-serif;font-weight:900;font-size:22px;color:var(--text)">${pct>=70?'Ausgezeichnet!':'Keep practicing!'}</div>
-      <div style="font-size:14px;color:var(--muted);margin-top:8px">${chQuizCorrect}/${chQuizQs.length} correct · ${pct}%</div>
-      <div style="margin-top:16px;background:var(--pu-light);border-radius:12px;padding:12px;font-size:13px;color:var(--pu);font-weight:800">+50 XP earned!</div>
+  if(chQuizIdx>=chQuizQs.length){showChQuizResult();return;}
+  const q=chQuizQs[chQuizIdx];
+  chQuizAnswered=false;
+  const letters=['A','B','C','D'];
+  const opts=[q.option_a,q.option_b,q.option_c,q.option_d].filter(Boolean);
+  const pct=Math.round((chQuizIdx/chQuizQs.length)*100);
+
+  // Build option HTML
+  let optsHtml=opts.map((opt,i)=>`
+    <div class="chq-opt" id="chq-opt-${i}" onclick="answerChQ(${i})">
+      <div class="chq-opt-letter">${letters[i]}</div>
+      <div class="chq-opt-body">
+        <div class="chq-opt-text">${opt}</div>
+        <div class="chq-rationale" id="chq-rat-${i}"></div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('ch-content').innerHTML=`
+    <div class="chq-topbar">
+      <div class="chq-progress-bar"><div class="chq-progress-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap">${chQuizIdx+1}/${chQuizQs.length}</div>
+      <div class="chq-counter">
+        <div class="chq-wrong">✕ ${chQuizWrong}</div>
+        <div class="chq-right">✓ ${chQuizCorrect}</div>
+      </div>
+    </div>
+    <div class="chq-question">${q.question}</div>
+    <div id="chq-opts">${optsHtml}</div>
+    ${q.hint?`<div class="chq-hint-wrap">
+      <button class="chq-hint-btn" onclick="toggleChHint(this)">💡 Show hint ▾</button>
+      <div class="chq-hint-body">${q.hint}</div>
+    </div>`:''}
+    <div class="chq-nav">
+      ${chQuizIdx>0?'<button class="chq-back-btn" onclick="chQuizIdx--;showChQuizQ()">← Back</button>':'<div></div>'}
+      <button class="chq-next-btn-q" id="chq-next-q" onclick="chQuizNext()">Next →</button>
     </div>`;
-    addXP(50);
-    document.getElementById('ch-next-btn').style.display='block';
-    document.getElementById('ch-next-btn').textContent='Complete Chapter 🎉';
-    return;
-  }
+  document.getElementById('ch-next-btn').style.display='none';
+}
+
+function toggleChHint(btn){
+  const body=btn.nextElementSibling;
+  body.classList.toggle('show');
+  btn.textContent=body.classList.contains('show')?'💡 Hide hint ▴':'💡 Show hint ▾';
+}
+
+function answerChQ(chosen){
+  if(chQuizAnswered)return;
+  chQuizAnswered=true;
   const q=chQuizQs[chQuizIdx];
   const opts=[q.option_a,q.option_b,q.option_c,q.option_d].filter(Boolean);
-  let optHtml=opts.map((opt,i)=>`<div class="safety-opt" id="chq-opt-${i}" onclick="checkChQ(${i},'${q.correct_answer.replace(/'/g,"\'")}','${(q.rationale||'').replace(/'/g,"\'")}')">${opt}</div>`).join('');
-  document.getElementById('ch-content').innerHTML=`<div class="safety-card">
-    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">Question ${chQuizIdx+1}/${chQuizQs.length}</div>
-    <div class="safety-q">${q.question}</div>
-    ${optHtml}
-    <div id="chq-feedback" style="display:none;margin-top:12px;padding:12px;border-radius:10px;font-size:13px;font-weight:600"></div>
-    ${q.hint?`<div style="margin-top:10px;font-size:12px;color:var(--muted)">💡 ${q.hint}</div>`:''}
-  </div>`;
+  const correctText=q.correct_answer;
+  const correctIdx=opts.findIndex(o=>o===correctText);
+  const isRight=chosen===correctIdx;
+
+  if(isRight){chQuizCorrect++;}else{chQuizWrong++;}
+
+  // Style all options
+  opts.forEach((opt,i)=>{
+    const el=document.getElementById('chq-opt-'+i);
+    const rat=document.getElementById('chq-rat-'+i);
+    if(!el)return;
+    el.classList.add('chq-disabled');
+    if(i===correctIdx){
+      el.classList.add('chq-correct');
+      // Show rationale for correct
+      if(rat){
+        rat.textContent=(isRight?'✓ That's right! ':'')+getRationale(q,i,opts);
+      }
+    } else if(i===chosen&&!isRight){
+      el.classList.add('chq-wrong-ans');
+      if(rat) rat.textContent='✕ '+getRationale(q,i,opts);
+    }
+  });
+
+  // Enable next button
+  const nextBtn=document.getElementById('chq-next-q');
+  if(nextBtn)nextBtn.classList.add('ready');
 }
-function checkChQ(idx,correct,rationale){
-  const opts=document.querySelectorAll('[id^="chq-opt-"]');
-  let chosen='';
-  opts.forEach((el,i)=>{if(i===idx)chosen=el.textContent.trim();});
-  opts.forEach(el=>el.style.pointerEvents='none');
-  const ok=chosen===correct;
-  if(ok){opts[idx].classList.add('correct');chQuizCorrect++;}
-  else{
-    opts[idx].classList.add('wrong');
-    opts.forEach(el=>{if(el.textContent.trim()===correct)el.classList.add('correct');});
-  }
-  const fb=document.getElementById('chq-feedback');
-  if(fb){
-    fb.style.display='block';
-    fb.style.background=ok?'#F0FDF4':'#FEF2F2';
-    fb.style.color=ok?'#15803D':'#B91C1C';
-    fb.textContent=(ok?'✅ Richtig! ':'❌ ')+(rationale||'');
-  }
-  setTimeout(()=>{chQuizIdx++;showChQuizQ();},1500);
+
+function getRationale(q,idx,opts){
+  // Map option index to rationale field
+  const fields=['rationale_a','rationale_b','rationale_c','rationale_d'];
+  return q[fields[idx]]||q.rationale||'';
 }
+
+function chQuizNext(){
+  if(!chQuizAnswered)return;
+  chQuizIdx++;
+  showChQuizQ();
+}
+
+function showChQuizResult(){
+  const total=chQuizQs.length;
+  const pct=Math.round((chQuizCorrect/total)*100);
+  const emoji=pct>=80?'🏆':pct>=60?'👍':'💪';
+  document.getElementById('ch-content').innerHTML=`
+    <div style="text-align:center;padding:30px 24px">
+      <div style="font-size:70px;margin-bottom:16px;animation:bounce 0.6s ease">${emoji}</div>
+      <div style="font-family:Nunito,sans-serif;font-weight:900;font-size:24px;color:var(--text);margin-bottom:6px">
+        ${pct>=80?'Ausgezeichnet!':pct>=60?'Gut gemacht!':'Keep practicing!'}
+      </div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:20px">${chQuizCorrect}/${total} correct · ${pct}%</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px">
+        <div style="background:#DCFCE7;border-radius:12px;padding:12px 20px;text-align:center">
+          <div style="font-family:Nunito,sans-serif;font-weight:900;font-size:24px;color:#15803D">${chQuizCorrect}</div>
+          <div style="font-size:11px;color:#15803D;font-weight:700">CORRECT</div>
+        </div>
+        <div style="background:#FEE2E2;border-radius:12px;padding:12px 20px;text-align:center">
+          <div style="font-family:Nunito,sans-serif;font-weight:900;font-size:24px;color:#B91C1C">${chQuizWrong}</div>
+          <div style="font-size:11px;color:#B91C1C;font-weight:700">WRONG</div>
+        </div>
+      </div>
+      <div style="background:var(--pu-light);border:1.5px solid var(--pu-mid);border-radius:14px;padding:14px;margin-bottom:16px">
+        <div style="font-family:Nunito,sans-serif;font-weight:800;font-size:15px;color:var(--pu)">+50 XP earned! ⭐</div>
+      </div>
+      ${pct<70?`<button class="btn-primary" style="margin-bottom:10px" onclick="startChQuiz(chQuizQs)">🔄 Try Again</button>`:''}
+    </div>`;
+  addXP(50);
+  document.getElementById('ch-next-btn').style.display='block';
+  document.getElementById('ch-next-btn').textContent='Complete Chapter 🎉';
+}
+
 
 function chNextScreen(){
   // Save progress
