@@ -1838,7 +1838,7 @@ async function openChapter(chNum){
   loading('ch-content','Loading chapter...');
   try{
     if(!chScreensCache[chNum]){
-      chScreensCache[chNum]=await sbFetch('/rest/v1/chapter_screens?select=*&chapter_id=eq.'+chNum+'&order=screen_num');
+      chScreensCache[chNum]=await sbFetch('/rest/v1/chapter_screens?select=*&chapter_id=eq.'+currentChapter.id+'&order=screen_num');
     }
     chScreens=chScreensCache[chNum];
     if(!chScreens.length){
@@ -2007,7 +2007,7 @@ async function renderChQuiz(){
   const chNum=currentChapter.chapter_num;
   if(!chQuizCache[chNum]){
     try{
-      chQuizCache[chNum]=await sbFetch('/rest/v1/chapter_quiz?select=*&chapter_id=eq.'+chNum+'&order=question_num');
+      chQuizCache[chNum]=await sbFetch('/rest/v1/chapter_quiz?select=*&chapter_id=eq.'+currentChapter.id+'&order=question_num');
     }catch(e){chQuizCache[chNum]=[];}
   }
   const qs=chQuizCache[chNum];
